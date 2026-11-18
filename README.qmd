@@ -3,9 +3,11 @@ title: "Máster en Sistemas de Información Geográfica y Teledetección"
 format: gfm
 ---
 
-## Análisis y Predicción Estadística de Datos Espacio-Temporales / Curso 2026-27
+## Análisis y Predicción Estadística de Datos Espacio-Temporales (curso 2026-27)
 
-1.  [Chapter 3: Cokriging](./Chapter3_Exercises.html)
+### Chapter 3: Cokriging
+
+- [Example 1: meuse data](./Chapter3_Example1.html)
 
 
 ## References

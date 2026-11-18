@@ -1,5 +1,5 @@
 ---
-title: "Exercises"
+title: "Ejercicios con R"
 ---
 
 ```{r child="README.qmd"}

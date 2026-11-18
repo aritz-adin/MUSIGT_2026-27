@@ -3,13 +3,13 @@ project:
   output-dir: docs
 
 website:
-  title: "Análisis y Predicción Estadística de Datos Espacio-Temporales 2026-27"
+  title: "Ejercicios con R"
   navbar:
     left:
       - href: index.qmd
-        text: Program
-      - href: Chapter3_Exercises.qmd
-        text: Chapter 3 - Cokrigin
+        text: Home
+      - href: Chapter3_Example1.qmd
+        text: Example 3.1 - meuse data
       # - href: Chapter2_Exercises.qmd
       #   text: Chapter 2 - GLMM
 

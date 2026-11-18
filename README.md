@@ -1,0 +1,10 @@
+# Máster en Sistemas de Información Geográfica y Teledetección
+
+
+## Análisis y Predicción Estadística de Datos Espacio-Temporales (curso 2026-27)
+
+### Chapter 3: Cokriging
+
+- [Example 1: meuse data](./Chapter3_Example1.html)
+
+## References
