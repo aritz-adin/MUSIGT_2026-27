@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -116,11 +151,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27" id="toc-análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27" class="nav-link active" data-scroll-target="#análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27">Análisis y Predicción Estadística de Datos Espacio-Temporales (curso 2026-27)</a>
+  <li><a href="#análisis-y-predicción-estadística-de-datos-espacio-temporales" id="toc-análisis-y-predicción-estadística-de-datos-espacio-temporales" class="nav-link active" data-scroll-target="#análisis-y-predicción-estadística-de-datos-espacio-temporales">Análisis y Predicción Estadística de Datos Espacio-Temporales</a>
   <ul class="collapse">
-  <li><a href="#chapter-3-cokriging" id="toc-chapter-3-cokriging" class="nav-link" data-scroll-target="#chapter-3-cokriging">Chapter 3: Cokriging</a></li>
-  </ul></li>
+  <li><a href="#contents" id="toc-contents" class="nav-link" data-scroll-target="#contents">Contents</a></li>
+  <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -146,19 +182,52 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27" class="level2">
-<h2 class="anchored" data-anchor-id="análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27">Análisis y Predicción Estadística de Datos Espacio-Temporales (curso 2026-27)</h2>
-<section id="chapter-3-cokriging" class="level3">
-<h3 class="anchored" data-anchor-id="chapter-3-cokriging">Chapter 3: Cokriging</h3>
+<p align="left">
+<img src="img/UPNA.jpg" height="60"> &nbsp;&nbsp;&nbsp;&nbsp; <img src="img/MUSIGT.jpg" height="60">
+</p>
+<section id="análisis-y-predicción-estadística-de-datos-espacio-temporales" class="level2">
+<h2 class="anchored" data-anchor-id="análisis-y-predicción-estadística-de-datos-espacio-temporales">Análisis y Predicción Estadística de Datos Espacio-Temporales</h2>
+<p>Máster en Sistemas de Información Geográfica y Teledetección · Academic year 2026-27</p>
+<p><strong>Lecturers:</strong> Aritz Adin and Tomás Goicoa (Universidad Pública de Navarra)</p>
+<hr>
+<p><img src="img/banner.png" class="img-fluid"></p>
+<hr>
+<section id="contents" class="level3">
+<h3 class="anchored" data-anchor-id="contents">Contents</h3>
+<section id="chapter-3-cokriging" class="level4">
+<h4 class="anchored" data-anchor-id="chapter-3-cokriging">Chapter 3: Cokriging</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="./Chapter3_Example1.html">Example 3.1</a></td>
+<td>Meuse data: direct and cross-semivariograms, linear model of coregionalization</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="requirements" class="level3">
+<h3 class="anchored" data-anchor-id="requirements">Requirements</h3>
+<p>The practical sessions use the following R packages:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"dplyr"</span>,<span class="st">"gstat"</span>,<span class="st">"sf"</span>,<span class="st">"sp"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
 <ul>
-<li><a href="./Chapter3_Example1.html">Example 1: meuse data</a></li>
+<li><p>Bivand, R. S., Pebesma, E., &amp; Gómez-Rubio, V. (2013). <em>Applied Spatial Data Analysis with R</em> (2nd ed.). Springer.</p></li>
+<li><p>Pebesma, E., &amp; Bivand, R. (2023). <em>Spatial Data Science: With Applications in R</em>. Chapman &amp; Hall/CRC.</p></li>
 </ul>
-</section>
-</section>
-<section id="references" class="level2">
-<h2 class="anchored" data-anchor-id="references">References</h2>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

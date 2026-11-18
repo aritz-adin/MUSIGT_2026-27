@@ -1,15 +1,361 @@
 ---
-title: "Chapter 3: Cokriging"
-author: "Aritz Adin y Tomás Goicoa"
+title: "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization"
+author: "Aritz Adin and Tomás Goicoa"
 date: 2026-11-18
 date-format: "MMM/YYYY"
 format:
   html:
     toc: true
+    toc-depth: 2
+    number-sections: true
+    code-copy: true
+    embed-resources: true
+execute:
+  warning: false
+  message: false
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)  
+# Objectives
+
+In this example we will:
+
+- Explore two spatially correlated variables: the concentrations of **lead** (primary variable) and **zinc** (secondary variable) in the Meuse soil samples.
+- Compute the **direct semivariograms** of both variables and their **cross-semivariogram**.
+- Fit a **linear model of coregionalization**, the joint model required by co-kriging.
+
+# Packages
+
+```{r}
+library(dplyr)
+library(gstat)
+library(sf)
 ```
 
-# Exercise 3.1: meuse data
+# Description of the data
+
+The `meuse` dataset (included in the `sp` package) contains 155 soil samples collected in the floodplain of the river Meuse (the Netherlands), with the concentrations of several heavy metals (in ppm, i.e., mg/kg). The coordinates are expressed in the Dutch national grid (EPSG:28992), in metres.
+
+```{r}
+data(meuse, package="sp")        # soil samples
+data(meuse.riv, package="sp")    # outline of the river
+
+meuse_sf <- meuse |> 
+  as_tibble() |> 
+  st_as_sf(coords=c("x","y"), crs=28992)
+
+river <- list(meuse.riv) |>
+  st_polygon() |>
+  st_sfc(crs = 28992)
+
+head(meuse_sf)
+head(river)
+```
+Both metals come from the same industrial sources and are transported in the same way by the river floods, so we expect them to show a similar spatial pattern:
+
+```{r}
+#| echo: false
+#| fig-cap: Lead and zinc concentrations (ppm) in the Meuse soil samples, classified by quintiles.
+#| fig-height: 5
+#| fig-width: 9
+
+pal <- hcl.colors(5, "YlOrRd", rev = TRUE)
+
+draw_map <- function(var, title) {
+  br <- quantile(meuse_sf[[var]], probs = seq(0, 1, 0.2))
+  cl <- cut(meuse_sf[[var]], br, include.lowest = TRUE)
+  bb <- st_bbox(meuse_sf)
+  plot(st_geometry(river), col = "lightblue", border = NA,
+       xlim = bb[c(1, 3)], ylim = bb[c(2, 4)], main = title)
+  plot(st_geometry(meuse_sf), pch = 21, bg = pal[cl], col = "grey30",
+       cex = 1.1, add = TRUE)
+  box()
+  legend("topleft", legend = paste(round(br[-6]), "-", round(br[-1])),
+         pt.bg = pal, pch = 21, col = "grey30", title = "ppm",
+         bty = "n", cex = 0.8)
+}
+
+par(mfrow = c(1, 2), mar = c(0.5, 0.5, 2, 0.5))
+draw_map("lead", "Lead (Pb)")
+draw_map("zinc", "Zinc (Zn)")
+```
+
+Both maps show the same pattern: higher concentrations near the river and lower concentrations further away from it.
+
+## Log transformation of lead and zinc data  {.unnumbered}
+
+Heavy metal concentrations usually have very **right-skewed** distributions: many low values and a few very high ones.
+
+```{r}
+#| fig-width: 9
+#| fig-height: 6
+
+par(mfrow = c(2, 2))
+hist(meuse_sf$lead, main = "Lead", xlab = "ppm", col = "grey80")
+hist(meuse_sf$zinc, main = "Zinc", xlab = "ppm", col = "grey80")
+hist(log(meuse_sf$lead), main = "log(Lead)", xlab = "log(ppm)", col = "grey80")
+hist(log(meuse_sf$zinc), main = "log(Zinc)", xlab = "log(ppm)", col = "grey80")
+```
+
+We will work with both variables on the **log scale** because:
+
+- The log transformation makes their distributions approximately symmetric.
+- The empirical semivariogram is based on squared differences, so it is very sensitive to extreme values. The log transformation stabilizes it.
+- Co-kriging is based on linear relationships between the variables, and on the log scale the relationship between lead and zinc is slightly more linear.
+- Both variables are on the same scale, which makes the sills of the cross-semivariogram easier to interpret.
+
+::: {.callout-note}
+Predictions obtained on the log scale must be back-transformed with `exp()`. This back-transformation approximately gives the **median**, not the mean, on the original scale.
+:::
+
+# Semivariogram of the primary variable
+
+Before working with both variables, we analyse the primary variable (lead) on its own, as in Chapter 1.
+
+## Empirical semivariogram
+
+```{r}
+v_lead <- variogram(log(lead) ~ 1, meuse_sf)
+v_lead
+```
+
+- The term `~ 1` in the formula means a **constant mean** (no trend).
+- By default, the maximum distance (`cutoff`) is one third of the diagonal of the bounding box of the data, divided into 15 distance lags (`width = cutoff/15`).
+
+*Remember*: each row of the output corresponds to a distance lag
+
+| Column | Meaning | Notation |
+|---|---|---|
+| `np` | Number of pairs of observations in the lag | $\lvert N(h)\rvert$ |
+| `dist` | Mean distance of these pairs (m) | $h$ |
+| `gamma` | Empirical semivariance | $\hat\gamma(h)$ |
+
+::: {.callout-note title="Interpretation"}
+For example, the first row indicates that there are `r v_lead$np[1]` pairs of samples separated by a mean distance of `r round(v_lead$dist[1])` m, with an empirical semivariance of `r round(v_lead$gamma[1], 3)`.
+:::
+
+
+## Fitted theoretical model
+
+```{r}
+vgm_lead <- fit.variogram(v_lead, model=vgm(psill=0.5, model="Sph",
+                                            range=1000, nugget=0.05))
+vgm_lead
+```
+
+The function `vgm()` defines a theoretical model with **initial values** for its parameters (chosen by visual inspection):
+
+| Argument | Meaning | Notation |
+|---|---|---|
+| `model = "Sph"` | Spherical model | — |
+| `psill = 0.5` | Partial sill | $\sigma^2$ |
+| `range = 1000` | Range (for the spherical model, the exact range) | $\rho$ |
+| `nugget = 0.05` | Nugget effect | $\tau^2$ |
+
+The function `fit.variogram()` then fits the model to the empirical semivariogram by **weighted least squares** (Chapter 2).
+
+::: {.callout-note title="Interpretation of the fitted model"}
+- Nugget effect: $\tau^2 \approx$ `r round(vgm_lead$psill[1], 3)`.
+- Partial sill: $\sigma^2 \approx$ `r round(vgm_lead$psill[2], 3)`.
+- Total sill: $\tau^2+\sigma^2 \approx$ `r round(sum(vgm_lead$psill), 3)`. The nugget effect represents about `r round(100 * vgm_lead$psill[1] / sum(vgm_lead$psill))`% of the total sill: the variability at very short distances is small.
+- Range: $\rho \approx$ `r round(vgm_lead$range[2])` m. Beyond this distance, lead concentrations in two samples are no longer correlated. 
+:::
+
+```{r}
+#| fig-show: hide
+plot(v_lead, vgm_lead, pch = 19,
+     xlab = "Distance (m)", ylab = "Semivariance",
+     main = "Semivariogram of log-lead (Pb)")
+```
+
+```{r}
+#| echo: false
+library(lattice)
+
+# Parameters of the fitted model
+nugget <- vgm_lead$psill[1]          # nugget effect
+sill   <- sum(vgm_lead$psill)        # total sill
+rng    <- vgm_lead$range[2]          # range
+
+plot(v_lead, vgm_lead, pch = 19,
+     xlab = "Distance (m)", ylab = "Semivariance",
+     main = "Semivariogram of log-lead (Pb)",
+     xlim = c(0, 1600), ylim = c(0, 0.7),
+     panel = function(...) {
+       vgm.panel.xyplot(...)   # empirical points + fitted model
+       # total sill and range
+       panel.abline(h = sill, lty = 2, col = "red")
+       panel.abline(v = rng,  lty = 2, col = "blue")
+       # nugget and partial sill
+       panel.arrows(60, 0, 60, nugget, length = 0.06, code = 3,
+                    col = "darkgreen", lwd = 2)
+       panel.arrows(1300, nugget, 1300, sill, length = 0.06, code = 3,
+                    col = "orange", lwd = 2)
+       # labels
+       panel.text(60, nugget / 2, "nugget", pos = 4, col = "darkgreen")
+       panel.text(1300, (nugget + sill) / 2, "partial sill", pos = 4, col = "orange")
+       panel.text(20, sill, "total sill", adj = c(0, -0.5), col = "red")
+       panel.text(rng, 0.05, "range", pos = 4, col = "blue")
+     })
+```
+
+# Direct and cross empirical semivariograms
+
+To work with both variables jointly, we create a `gstat` object containing them:
+
+```{r}
+g <- gstat(NULL, id = "Pb", formula = log(lead) ~ 1, data = meuse_sf)
+g <- gstat(g,    id = "Zn", formula = log(zinc) ~ 1, data = meuse_sf)
+g
+```
+
+When `variogram()` is applied to an object with two variables, `gstat` computes the **three empirical semivariograms** at once:
+
+```{r}
+v <- variogram(g)
+```
+
+| `id` | Semivariogram | Notation |
+|---|---|---|
+| `Pb` | Direct semivariogram of lead | $\hat\gamma_{11}(h)$ |
+| `Zn` | Direct semivariogram of zinc | $\hat\gamma_{22}(h)$ |
+| `Pb.Zn` | Cross-semivariogram | $\hat\gamma_{12}(h)$ |
+
+For the cross-semivariogram, the product of the differences of both variables is used for each pair of locations, instead of the squared difference of a single variable. Therefore, it can only be computed at the locations where both variables have been measured (in the Meuse data, all of them).
+
+::: {.callout-tip}
+- The direct semivariogram of lead (`id = "Pb"`) is exactly the same as `v_lead`, computed in the previous section.
+- In the cross-semivariogram, the number of pairs `np` is twice that of the direct semivariograms, because `gstat` counts each pair of locations in both possible orders. This does not affect the value of the semivariance.
+:::
+
+```{r}
+v |> 
+  filter(id=="Pb") |> 
+  select(np, dist, gamma) |> 
+  head()
+
+v |> 
+  filter(id=="Pb.Zn") |> 
+  select(np, dist, gamma) |> 
+  head()
+```
+
+# Linear model of coregionalization
+
+The three semivariograms cannot be fitted separately: the joint model must be valid. In the **linear model of coregionalization**, the three semivariograms share the same basic structures (same shape and same range) and differ only in their sills.
+
+```{r}
+lmc <- fit.lmc(v, g, model=vgm_lead)
+lmc$model
+```
+
+The function `fit.lmc()` takes:
+
+- the empirical semivariograms (`v`);
+- the `gstat` object with both variables (`g`);
+- the model fitted for lead (`vgm_lead`), from which it takes the **basic structures** (nugget effect + spherical model) and the **range** (`r round(vgm_lead$range[2])` m).
+
+It keeps the range fixed and fits only the **sills** of each semivariogram. The result is again a `gstat` object, now including the fitted models, which will be used for co-kriging predictions (`predict()`) and cross-validation (`gstat.cv()`).
+
+::: {.callout-note}
+The range is taken from the direct semivariogram of lead, which implicitly assumes that it is also adequate for zinc and for the cross-semivariogram. Looking at the plot below, this assumption is reasonable. Alternatively, `fit.lmc(..., fit.ranges = TRUE)` also refits the common range using the three semivariograms jointly.
+:::
+
+## Plot of the fitted model {.unnumbered}
+
+```{r}
+#| fig-width: 7
+#| fig-height: 6
+#| fig-cap: "Direct and cross empirical semivariograms of log-lead (Pb) and log-zinc (Zn), with the fitted linear model of coregionalization."
+
+plot(v, lmc, pch = 19, col = "black",
+     xlab = "Distance (m)", ylab = "Semivariance",
+     scales = list(alternating = 1, tck = c(1, 0)))
+```
+
+In each panel, the **points** are the empirical semivariograms (computed with `variogram()`) and the **lines** are the fitted linear model of coregionalization (`fit.lmc()`).
+
+::: {.callout-note title="Interpretation"}
+The cross-semivariogram shows a clear spatial structure, very similar to that of the direct semivariograms: it increases with distance and levels off at about `r round(sum(lmc$model$Pb.Zn$psill), 2)`. This indicates a **strong spatial correlation** between both metals, so zinc can provide useful information to predict lead in co-kriging.
+:::
+
+# Summary of the workflow
+
+| Step | Function | Result |
+|---|---|---|
+| Empirical semivariogram of the primary variable | `variogram()` | Points |
+| Theoretical model of the primary variable | `fit.variogram()` | Line (shape and range) |
+| Direct and cross empirical semivariograms | `gstat()` + `variogram()` | Points of the three semivariograms |
+| Linear model of coregionalization | `fit.lmc()` | Lines of the three semivariograms (same shape, different sills) |
+
+
+# Exercise
+
+Repeat the analysis using **organic matter** (`om`) as the secondary variable instead of zinc. Note that:
+
+- `om` has missing values, which must be removed first (`meuse_sf |> filter(!is.na(om))`).
+- As in the example, use both variables on the **log scale** (`log(lead)` and `log(om)`).
+
+Answer the following questions:
+
+- Is the cross-semivariogram between lead and organic matter structured?
+- How does it compare with the cross-semivariogram between lead and zinc?
+
+## Solution {.unnumbered}
+
+```{r}
+#| include: false
+# 1. Data -----------------------------------------------------
+
+# om has missing values: remove those samples first
+meuse_om <- meuse_sf |>
+  filter(!is.na(om))
+print(meuse_om)
+
+# Correlation between lead and organic matter (log scale) at the same sampling points
+cor(log(meuse_om$lead), log(meuse_om$om))
+
+
+# 2. Semivariogram of the primary variable --------------------
+v_lead <- variogram(log(lead) ~ 1, meuse_om)
+vgm_lead <- fit.variogram(v_lead,
+                          model = vgm(psill = 0.5, model = "Sph",
+                                      range = 1000, nugget = 0.05))
+vgm_lead
+
+
+# 3. Direct and cross empirical semivariograms -----------------
+g <- gstat(NULL, id = "Pb", formula = log(lead) ~ 1, data = meuse_om)
+g <- gstat(g,    id = "OM", formula = log(om) ~ 1,   data = meuse_om)
+
+v <- variogram(g)
+
+
+# 4. Linear model of coregionalization -------------------------
+lmc <- fit.lmc(v, g, model = vgm_lead)
+lmc$model
+```
+
+```{r}
+#| echo: false
+# 5. Plot -----------------------------------------------------
+plot(v, lmc, pch = 19, col = "black",
+     xlab = "Distance (m)", ylab = "Semivariance",
+     scales = list(alternating = 1, tck = c(1, 0)))
+```
+| | Example (Pb and Zn) | Exercise (Pb and OM) |
+|---|---|---|
+| Number of samples | 155 | 153 |
+| Correlation at the same sampling points (log scale) | 0.97 | 0.53 |
+| Common range | $\approx$ 965 m | $\approx$ 1028 m |
+| Cross-semivariogram sill: nugget effect | 0.048 | 0.002 |
+| Cross-semivariogram sill: spherical model | 0.544 | 0.227 |
+| Total sill of the cross-semivariogram | $\approx$ 0.59 | $\approx$ 0.23 |
+
+: Comparison of the linear models of coregionalization for lead and zinc (example) and lead and organic matter (exercise). {#tbl-comparison}
+
+
+**Interpretation:**
+
+- The cross-semivariogram between lead and organic matter **is structured**: it increases with distance and levels off, so there is a spatial correlation between both variables.
+- However, this correlation is **considerably weaker** than with zinc (@tbl-comparison): the sill of the cross-semivariogram is much lower ($0.23$ vs. $0.59$), and the correlation at the same sampling points is also lower ($0.53$ vs. $0.97$). For the nugget effect component, the cross-semivariogram sill is almost zero: at very short distances, the variations of both variables are practically independent.
+- **Conclusion for co-kriging:** zinc is a much better secondary variable to predict lead. Organic matter could provide some information, but less.

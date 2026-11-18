@@ -1,10 +1,50 @@
 # Máster en Sistemas de Información Geográfica y Teledetección
 
 
-## Análisis y Predicción Estadística de Datos Espacio-Temporales (curso 2026-27)
+<p align="left">
 
-### Chapter 3: Cokriging
+<img src="img/UPNA.jpg" height="60">     
+<img src="img/MUSIGT.jpg" height="60">
+</p>
 
-- [Example 1: meuse data](./Chapter3_Example1.html)
+## Análisis y Predicción Estadística de Datos Espacio-Temporales
 
-## References
+Máster en Sistemas de Información Geográfica y Teledetección · Academic
+year 2026-27
+
+**Lecturers:** Aritz Adin and Tomás Goicoa (Universidad Pública de
+Navarra)
+
+------------------------------------------------------------------------
+
+![](img/banner.png)
+
+------------------------------------------------------------------------
+
+### Contents
+
+#### Chapter 3: Cokriging
+
+|  | Description |
+|----|----|
+| [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
+
+------------------------------------------------------------------------
+
+### Requirements
+
+The practical sessions use the following R packages:
+
+``` r
+install.packages(c("dplyr","gstat","sf","sp"))
+```
+
+------------------------------------------------------------------------
+
+### References
+
+- Bivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). *Applied Spatial
+  Data Analysis with R* (2nd ed.). Springer.
+
+- Pebesma, E., & Bivand, R. (2023). *Spatial Data Science: With
+  Applications in R*. Chapman & Hall/CRC.

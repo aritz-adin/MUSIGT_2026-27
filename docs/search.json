@@ -1,30 +1,51 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
+    "objectID": "index.html#análisis-y-predicción-estadística-de-datos-espacio-temporales",
+    "href": "index.html#análisis-y-predicción-estadística-de-datos-espacio-temporales",
     "title": "Ejercicios con R",
-    "section": "",
-    "text": "Example 1: meuse data"
-  },
-  {
-    "objectID": "index.html#análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27",
-    "href": "index.html#análisis-y-predicción-estadística-de-datos-espacio-temporales-curso-2026-27",
-    "title": "Ejercicios con R",
-    "section": "",
-    "text": "Example 1: meuse data"
-  },
-  {
-    "objectID": "index.html#references",
-    "href": "index.html#references",
-    "title": "Ejercicios con R",
-    "section": "References",
-    "text": "References"
+    "section": "Análisis y Predicción Estadística de Datos Espacio-Temporales",
+    "text": "Análisis y Predicción Estadística de Datos Espacio-Temporales\nMáster en Sistemas de Información Geográfica y Teledetección · Academic year 2026-27\nLecturers: Aritz Adin and Tomás Goicoa (Universidad Pública de Navarra)\n\n\n\n\nContents\n\nChapter 3: Cokriging\n\n\n\n\nDescription\n\n\n\n\nExample 3.1\nMeuse data: direct and cross-semivariograms, linear model of coregionalization\n\n\n\n\n\n\n\nRequirements\nThe practical sessions use the following R packages:\ninstall.packages(c(\"dplyr\",\"gstat\",\"sf\",\"sp\"))\n\n\n\nReferences\n\nBivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). Applied Spatial Data Analysis with R (2nd ed.). Springer.\nPebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman & Hall/CRC."
   },
   {
     "objectID": "Chapter3_Example1.html",
     "href": "Chapter3_Example1.html",
-    "title": "Chapter 3: Cokriging",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
     "section": "",
-    "text": "Exercise 3.1: meuse data"
+    "text": "In this example we will:\n\nExplore two spatially correlated variables: the concentrations of lead (primary variable) and zinc (secondary variable) in the Meuse soil samples.\nCompute the direct semivariograms of both variables and their cross-semivariogram.\nFit a linear model of coregionalization, the joint model required by co-kriging."
+  },
+  {
+    "objectID": "Chapter3_Example1.html#log-transformation-of-lead-and-zinc-data",
+    "href": "Chapter3_Example1.html#log-transformation-of-lead-and-zinc-data",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
+    "section": "Log transformation of lead and zinc data",
+    "text": "Log transformation of lead and zinc data\nHeavy metal concentrations usually have very right-skewed distributions: many low values and a few very high ones.\n\npar(mfrow = c(2, 2))\nhist(meuse_sf$lead, main = \"Lead\", xlab = \"ppm\", col = \"grey80\")\nhist(meuse_sf$zinc, main = \"Zinc\", xlab = \"ppm\", col = \"grey80\")\nhist(log(meuse_sf$lead), main = \"log(Lead)\", xlab = \"log(ppm)\", col = \"grey80\")\nhist(log(meuse_sf$zinc), main = \"log(Zinc)\", xlab = \"log(ppm)\", col = \"grey80\")\n\n\n\n\n\n\n\n\nWe will work with both variables on the log scale because:\n\nThe log transformation makes their distributions approximately symmetric.\nThe empirical semivariogram is based on squared differences, so it is very sensitive to extreme values. The log transformation stabilizes it.\nCo-kriging is based on linear relationships between the variables, and on the log scale the relationship between lead and zinc is slightly more linear.\nBoth variables are on the same scale, which makes the sills of the cross-semivariogram easier to interpret.\n\n\n\n\n\n\n\nNote\n\n\n\nPredictions obtained on the log scale must be back-transformed with exp(). This back-transformation approximately gives the median, not the mean, on the original scale."
+  },
+  {
+    "objectID": "Chapter3_Example1.html#empirical-semivariogram",
+    "href": "Chapter3_Example1.html#empirical-semivariogram",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
+    "section": "4.1 Empirical semivariogram",
+    "text": "4.1 Empirical semivariogram\n\nv_lead &lt;- variogram(log(lead) ~ 1, meuse_sf)\nv_lead\n\n    np       dist     gamma dir.hor dir.ver   id\n1   57   79.29244 0.1046520       0       0 var1\n2  299  163.97367 0.1965929       0       0 var1\n3  419  267.36483 0.2507668       0       0 var1\n4  457  372.73542 0.3330690       0       0 var1\n5  547  478.47670 0.3875716       0       0 var1\n6  533  585.34058 0.4817750       0       0 var1\n7  574  693.14526 0.5031432       0       0 var1\n8  564  796.18365 0.5545787       0       0 var1\n9  589  903.14650 0.5693882       0       0 var1\n10 543 1011.29177 0.6098806       0       0 var1\n11 500 1117.86235 0.6253271       0       0 var1\n12 477 1221.32810 0.5126165       0       0 var1\n13 452 1329.16407 0.5755737       0       0 var1\n14 457 1437.25620 0.4676728       0       0 var1\n15 415 1543.20248 0.4804887       0       0 var1\n\n\n\nThe term ~ 1 in the formula means a constant mean (no trend).\nBy default, the maximum distance (cutoff) is one third of the diagonal of the bounding box of the data, divided into 15 distance lags (width = cutoff/15).\n\nRemember: each row of the output corresponds to a distance lag\n\n\n\n\n\n\n\n\nColumn\nMeaning\nNotation\n\n\n\n\nnp\nNumber of pairs of observations in the lag\n\\(\\lvert N(h)\\rvert\\)\n\n\ndist\nMean distance of these pairs (m)\n\\(h\\)\n\n\ngamma\nEmpirical semivariance\n\\(\\hat\\gamma(h)\\)\n\n\n\n\n\n\n\n\n\nNoteInterpretation\n\n\n\nFor example, the first row indicates that there are 57 pairs of samples separated by a mean distance of 79 m, with an empirical semivariance of 0.105."
+  },
+  {
+    "objectID": "Chapter3_Example1.html#fitted-theoretical-model",
+    "href": "Chapter3_Example1.html#fitted-theoretical-model",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
+    "section": "4.2 Fitted theoretical model",
+    "text": "4.2 Fitted theoretical model\n\nvgm_lead &lt;- fit.variogram(v_lead, model=vgm(psill=0.5, model=\"Sph\",\n                                            range=1000, nugget=0.05))\nvgm_lead\n\n  model      psill    range\n1   Nug 0.05156252   0.0000\n2   Sph 0.51530678 965.1506\n\n\nThe function vgm() defines a theoretical model with initial values for its parameters (chosen by visual inspection):\n\n\n\n\n\n\n\n\nArgument\nMeaning\nNotation\n\n\n\n\nmodel = \"Sph\"\nSpherical model\n—\n\n\npsill = 0.5\nPartial sill\n\\(\\sigma^2\\)\n\n\nrange = 1000\nRange (for the spherical model, the exact range)\n\\(\\rho\\)\n\n\nnugget = 0.05\nNugget effect\n\\(\\tau^2\\)\n\n\n\nThe function fit.variogram() then fits the model to the empirical semivariogram by weighted least squares (Chapter 2).\n\n\n\n\n\n\nNoteInterpretation of the fitted model\n\n\n\n\nNugget effect: \\(\\tau^2 \\approx\\) 0.052.\nPartial sill: \\(\\sigma^2 \\approx\\) 0.515.\nTotal sill: \\(\\tau^2+\\sigma^2 \\approx\\) 0.567. The nugget effect represents about 9% of the total sill: the variability at very short distances is small.\nRange: \\(\\rho \\approx\\) 965 m. Beyond this distance, lead concentrations in two samples are no longer correlated.\n\n\n\n\nplot(v_lead, vgm_lead, pch = 19,\n     xlab = \"Distance (m)\", ylab = \"Semivariance\",\n     main = \"Semivariogram of log-lead (Pb)\")"
+  },
+  {
+    "objectID": "Chapter3_Example1.html#plot-of-the-fitted-model",
+    "href": "Chapter3_Example1.html#plot-of-the-fitted-model",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
+    "section": "Plot of the fitted model",
+    "text": "Plot of the fitted model\n\nplot(v, lmc, pch = 19, col = \"black\",\n     xlab = \"Distance (m)\", ylab = \"Semivariance\",\n     scales = list(alternating = 1, tck = c(1, 0)))\n\n\n\n\nDirect and cross empirical semivariograms of log-lead (Pb) and log-zinc (Zn), with the fitted linear model of coregionalization.\n\n\n\n\nIn each panel, the points are the empirical semivariograms (computed with variogram()) and the lines are the fitted linear model of coregionalization (fit.lmc()).\n\n\n\n\n\n\nNoteInterpretation\n\n\n\nThe cross-semivariogram shows a clear spatial structure, very similar to that of the direct semivariograms: it increases with distance and levels off at about 0.59. This indicates a strong spatial correlation between both metals, so zinc can provide useful information to predict lead in co-kriging."
+  },
+  {
+    "objectID": "Chapter3_Example1.html#solution",
+    "href": "Chapter3_Example1.html#solution",
+    "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
+    "section": "Solution",
+    "text": "Solution\n\n\n\n\n\n\n\n\n\n\n\n\nTable 1: Comparison of the linear models of coregionalization for lead and zinc (example) and lead and organic matter (exercise).\n\n\n\n\n\n\n\n\n\n\n\nExample (Pb and Zn)\nExercise (Pb and OM)\n\n\n\n\nNumber of samples\n155\n153\n\n\nCorrelation at the same sampling points (log scale)\n0.97\n0.53\n\n\nCommon range\n\\(\\approx\\) 965 m\n\\(\\approx\\) 1028 m\n\n\nCross-semivariogram sill: nugget effect\n0.048\n0.002\n\n\nCross-semivariogram sill: spherical model\n0.544\n0.227\n\n\nTotal sill of the cross-semivariogram\n\\(\\approx\\) 0.59\n\\(\\approx\\) 0.23\n\n\n\n\n\n\nInterpretation:\n\nThe cross-semivariogram between lead and organic matter is structured: it increases with distance and levels off, so there is a spatial correlation between both variables.\nHowever, this correlation is considerably weaker than with zinc (Table 1): the sill of the cross-semivariogram is much lower (\\(0.23\\) vs. \\(0.59\\)), and the correlation at the same sampling points is also lower (\\(0.53\\) vs. \\(0.97\\)). For the nugget effect component, the cross-semivariogram sill is almost zero: at very short distances, the variations of both variables are practically independent.\nConclusion for co-kriging: zinc is a much better secondary variable to predict lead. Organic matter could provide some information, but less."
   }
 ]
