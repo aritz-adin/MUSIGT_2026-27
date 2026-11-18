@@ -1,0 +1,15 @@
+---
+title: "Chapter 3: Cokriging"
+author: "Aritz Adin y Tomás Goicoa"
+date: 2026-11-18
+date-format: "MMM/YYYY"
+format:
+  html:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)  
+```
+
+# Exercise 3.1: meuse data

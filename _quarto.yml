@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Análisis y Predicción Estadística de Datos Espacio-Temporales 2026-27"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Program
+      - href: Chapter3_Exercises.qmd
+        text: Chapter 3 - Cokrigin
+      # - href: Chapter2_Exercises.qmd
+      #   text: Chapter 2 - GLMM
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    link-external-newwindow: true
+
+editor: visual
+
