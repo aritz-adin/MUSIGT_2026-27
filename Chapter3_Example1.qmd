@@ -10,6 +10,8 @@ format:
     number-sections: true
     code-copy: true
     embed-resources: true
+resources:
+  - Chapter3_Example1.R
 execute:
   warning: false
   message: false
@@ -22,6 +24,11 @@ In this example we will:
 - Explore two spatially correlated variables: the concentrations of **lead** (primary variable) and **zinc** (secondary variable) in the Meuse soil samples.
 - Compute the **direct semivariograms** of both variables and their **cross-semivariogram**.
 - Fit a **linear model of coregionalization**, the joint model required by co-kriging.
+
+::: {.callout-tip title="R script"}
+You can download the R script with all the code of this example and follow it step by step in RStudio:
+<a href="Chapter3_Example1.R" download>**Chapter3_Example1.R**</a>
+:::
 
 # Packages
 
@@ -81,7 +88,7 @@ draw_map("zinc", "Zinc (Zn)")
 
 Both maps show the same pattern: higher concentrations near the river and lower concentrations further away from it.
 
-## Log transformation of lead and zinc data  {.unnumbered}
+## Log transformation of lead and zinc variables  {.unnumbered}
 
 Heavy metal concentrations usually have very **right-skewed** distributions: many low values and a few very high ones.
 
@@ -198,7 +205,7 @@ plot(v_lead, vgm_lead, pch = 19,
      })
 ```
 
-# Direct and cross empirical semivariograms
+# Direct and cross-empirical semivariograms
 
 To work with both variables jointly, we create a `gstat` object containing them:
 

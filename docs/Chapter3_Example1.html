@@ -4218,14 +4218,14 @@ window.Quarto = {
   <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages"><span class="header-section-number">2</span> Packages</a></li>
   <li><a href="#description-of-the-data" id="toc-description-of-the-data" class="nav-link" data-scroll-target="#description-of-the-data"><span class="header-section-number">3</span> Description of the data</a>
   <ul class="collapse">
-  <li><a href="#log-transformation-of-lead-and-zinc-data" id="toc-log-transformation-of-lead-and-zinc-data" class="nav-link" data-scroll-target="#log-transformation-of-lead-and-zinc-data">Log transformation of lead and zinc data</a></li>
+  <li><a href="#log-transformation-of-lead-and-zinc-variables" id="toc-log-transformation-of-lead-and-zinc-variables" class="nav-link" data-scroll-target="#log-transformation-of-lead-and-zinc-variables">Log transformation of lead and zinc variables</a></li>
   </ul></li>
   <li><a href="#semivariogram-of-the-primary-variable" id="toc-semivariogram-of-the-primary-variable" class="nav-link" data-scroll-target="#semivariogram-of-the-primary-variable"><span class="header-section-number">4</span> Semivariogram of the primary variable</a>
   <ul class="collapse">
   <li><a href="#empirical-semivariogram" id="toc-empirical-semivariogram" class="nav-link" data-scroll-target="#empirical-semivariogram"><span class="header-section-number">4.1</span> Empirical semivariogram</a></li>
   <li><a href="#fitted-theoretical-model" id="toc-fitted-theoretical-model" class="nav-link" data-scroll-target="#fitted-theoretical-model"><span class="header-section-number">4.2</span> Fitted theoretical model</a></li>
   </ul></li>
-  <li><a href="#direct-and-cross-empirical-semivariograms" id="toc-direct-and-cross-empirical-semivariograms" class="nav-link" data-scroll-target="#direct-and-cross-empirical-semivariograms"><span class="header-section-number">5</span> Direct and cross empirical semivariograms</a></li>
+  <li><a href="#direct-and-cross-empirical-semivariograms" id="toc-direct-and-cross-empirical-semivariograms" class="nav-link" data-scroll-target="#direct-and-cross-empirical-semivariograms"><span class="header-section-number">5</span> Direct and cross-empirical semivariograms</a></li>
   <li><a href="#linear-model-of-coregionalization" id="toc-linear-model-of-coregionalization" class="nav-link" data-scroll-target="#linear-model-of-coregionalization"><span class="header-section-number">6</span> Linear model of coregionalization</a>
   <ul class="collapse">
   <li><a href="#plot-of-the-fitted-model" id="toc-plot-of-the-fitted-model" class="nav-link" data-scroll-target="#plot-of-the-fitted-model">Plot of the fitted model</a></li>
@@ -4280,6 +4280,19 @@ window.Quarto = {
 <li>Compute the <strong>direct semivariograms</strong> of both variables and their <strong>cross-semivariogram</strong>.</li>
 <li>Fit a <strong>linear model of coregionalization</strong>, the joint model required by co-kriging.</li>
 </ul>
+<div class="callout callout-style-default callout-tip callout-titled" title="R script">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>R script
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You can download the R script with all the code of this example and follow it step by step in RStudio: <a href="Chapter3_Example1.R" download><strong>Chapter3_Example1.R</strong></a></p>
+</div>
+</div>
 </section>
 <section id="packages" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> Packages</h1>
@@ -4343,8 +4356,8 @@ Projected CRS: Amersfoort / RD New</code></pre>
 </div>
 </div>
 <p>Both maps show the same pattern: higher concentrations near the river and lower concentrations further away from it.</p>
-<section id="log-transformation-of-lead-and-zinc-data" class="level2 unnumbered">
-<h2 class="unnumbered anchored" data-anchor-id="log-transformation-of-lead-and-zinc-data">Log transformation of lead and zinc data</h2>
+<section id="log-transformation-of-lead-and-zinc-variables" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="log-transformation-of-lead-and-zinc-variables">Log transformation of lead and zinc variables</h2>
 <p>Heavy metal concentrations usually have very <strong>right-skewed</strong> distributions: many low values and a few very high ones.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>))</span>
@@ -4544,7 +4557,7 @@ Note
 </section>
 </section>
 <section id="direct-and-cross-empirical-semivariograms" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Direct and cross empirical semivariograms</h1>
+<h1 data-number="5"><span class="header-section-number">5</span> Direct and cross-empirical semivariograms</h1>
 <p>To work with both variables jointly, we create a <code>gstat</code> object containing them:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">gstat</span>(<span class="cn">NULL</span>, <span class="at">id =</span> <span class="st">&quot;Pb&quot;</span>, <span class="at">formula =</span> <span class="fu">log</span>(lead) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> meuse_sf)</span>
