@@ -4,7 +4,7 @@
     "href": "index.html#análisis-y-predicción-estadística-de-datos-espacio-temporales",
     "title": "Ejercicios con R",
     "section": "Análisis y Predicción Estadística de Datos Espacio-Temporales",
-    "text": "Análisis y Predicción Estadística de Datos Espacio-Temporales\nMáster en Sistemas de Información Geográfica y Teledetección · Academic year 2026-27\nLecturers: Aritz Adin and Tomás Goicoa (Universidad Pública de Navarra)\n\n\n\n\nContents\n\nChapter 3: Cokriging\n\n\n\n\nDescription\n\n\n\n\nExample 3.1\nMeuse data: direct and cross-semivariograms, linear model of coregionalization\n\n\n\n\n\n\n\nRequirements\nThe practical sessions use the following R packages:\ninstall.packages(c(\"dplyr\",\"gstat\",\"sf\",\"sp\"))\n\n\n\nReferences\n\nBivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). Applied Spatial Data Analysis with R (2nd ed.). Springer.\nPebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman & Hall/CRC."
+    "text": "Análisis y Predicción Estadística de Datos Espacio-Temporales\nMáster en Sistemas de Información Geográfica y Teledetección · Academic year 2026-27\nLecturers: Aritz Adin and Tomás Goicoa (Universidad Pública de Navarra)\n\n\n\n\nContents\n\nChapter 3: Cokriging\n\n\n\n\nDescription\n\n\n\n\nExample 3.1\nMeuse data: direct and cross-semivariograms, linear model of coregionalization\n\n\nExample 3.2\nMeuse data: co-kriging prediction\n\n\n\n\n\n\n\nRequirements\nThe practical sessions use the following R packages:\ninstall.packages(c(\"dplyr\",\"gstat\",\"sf\",\"sp\",\"tmap\"))\n\n\n\nReferences\n\nBivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). Applied Spatial Data Analysis with R (2nd ed.). Springer. https://asdar-book.org/\nPebesma, E., & Bivand, R. (2023). Spatial Data Science: With Applications in R. Chapman & Hall/CRC. https://r-spatial.org/book\nTennekes M (2018). “tmap: Thematic Maps in R.” Journal of Statistical Software, 84(6), 1-39. https://doi.org/10.18637/jss.v084.i06"
   },
   {
     "objectID": "Chapter3_Example1.html",
@@ -47,5 +47,61 @@
     "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
     "section": "Solution",
     "text": "Solution\n\n\n\n\n\n\n\n\n\n\n\n\nTable 1: Comparison of the linear models of coregionalization for lead and zinc (example) and lead and organic matter (exercise).\n\n\n\n\n\n\n\n\n\n\n\nExample (Pb and Zn)\nExercise (Pb and OM)\n\n\n\n\nNumber of samples\n155\n153\n\n\nCorrelation at the same sampling points (log scale)\n0.97\n0.53\n\n\nCommon range\n\\(\\approx\\) 965 m\n\\(\\approx\\) 1028 m\n\n\nCross-semivariogram sill: nugget effect\n0.048\n0.002\n\n\nCross-semivariogram sill: spherical model\n0.544\n0.227\n\n\nTotal sill of the cross-semivariogram\n\\(\\approx\\) 0.59\n\\(\\approx\\) 0.23\n\n\n\n\n\n\nInterpretation:\n\nThe cross-semivariogram between lead and organic matter is structured: it increases with distance and levels off, so there is a spatial correlation between both variables.\nHowever, this correlation is considerably weaker than with zinc (Table 1): the sill of the cross-semivariogram is much lower (\\(0.23\\) vs. \\(0.59\\)), and the correlation at the same sampling points is also lower (\\(0.53\\) vs. \\(0.97\\)). For the nugget effect component, the cross-semivariogram sill is almost zero: at very short distances, the variations of both variables are practically independent.\nConclusion for co-kriging: zinc is a much better secondary variable to predict lead. Organic matter could provide some information, but less."
+  },
+  {
+    "objectID": "Chapter3_Example2.html",
+    "href": "Chapter3_Example2.html",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "",
+    "text": "In this example we will:\n\nPredict the concentration of lead (primary variable) in the Meuse study area using zinc (secondary variable), in the typical situation where the secondary variable has been observed at many more locations than the primary variable.\nCompare ordinary kriging (lead only) and ordinary co-kriging (lead and zinc) using prediction maps, their standard errors and cross-validation.\n\n\n\n\n\n\n\nTipR script\n\n\n\nYou can download the R script with all the code of this example and follow it step by step in RStudio: Chapter3_Example2.R"
+  },
+  {
+    "objectID": "Chapter3_Example2.html#simulating-the-typical-situation-of-co-kriging",
+    "href": "Chapter3_Example2.html#simulating-the-typical-situation-of-co-kriging",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "Simulating the typical situation of co-kriging",
+    "text": "Simulating the typical situation of co-kriging\nIn the Meuse data, lead and zinc have been measured at the same 155 locations. To reproduce the typical situation of co-kriging, we assume that lead has only been measured at a random subset of 50 samples, while zinc is available at all of them.\n\nset.seed(123)\nidx &lt;- sample(nrow(meuse_sf), 50)\n\nlead_sf &lt;- meuse_sf |&gt; slice(idx)   # primary variable: 50 samples\nzinc_sf &lt;- meuse_sf                 # secondary variable: 155 samples\n\n\n\n\n\n\nSampling locations of lead and zinc."
+  },
+  {
+    "objectID": "Chapter3_Example2.html#direct-and-cross-empirical-semivariograms",
+    "href": "Chapter3_Example2.html#direct-and-cross-empirical-semivariograms",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "4.1 Direct and cross empirical semivariograms",
+    "text": "4.1 Direct and cross empirical semivariograms\nAs in Example 3.1, we create a gstat object with both variables. Note that now each variable has its own data set: lead is taken from lead_sf (50 samples) and zinc from zinc_sf (155 samples).\n\ng &lt;- gstat(NULL, id = \"Pb\", formula = log(lead) ~ 1, data = lead_sf)\ng &lt;- gstat(g,    id = \"Zn\", formula = log(zinc) ~ 1, data = zinc_sf)\n\nv &lt;- variogram(g)\nv |&gt; filter(dist==0)\n\n  np dist      gamma dir.hor dir.ver    id\n1 50    0 0.01552923       0       0 Pb.Zn\n\n\n\n\n\n\n\n\nImportantZero-distance lag in the cross-semivariogram\n\n\n\nThe 50 lead samples are also zinc samples, so the cross-semivariogram includes pairs of observations at distance 0 (lead and zinc measured at the same location). This creates an extra lag with dist = 0, which must be removed before fitting the model (otherwise, fit.lmc() returns an error).\n\n\n\nv &lt;- v |&gt; filter(dist&gt;0)"
+  },
+  {
+    "objectID": "Chapter3_Example2.html#linear-model-of-coregionalization",
+    "href": "Chapter3_Example2.html#linear-model-of-coregionalization",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "4.2 Linear model of coregionalization",
+    "text": "4.2 Linear model of coregionalization\n\nlmc &lt;- fit.lmc(v, g, model=vgm_lead)\nlmc$model\n\n$Pb\n  model     psill    range\n1   Nug 0.1087290    0.000\n2   Sph 0.4861717 1141.481\n\n$Pb.Zn\n  model      psill    range\n1   Nug 0.07708997    0.000\n2   Sph 0.56026925 1141.481\n\n$Zn\n  model      psill    range\n1   Nug 0.07787233    0.000\n2   Sph 0.64566000 1141.481\n\n\n\nplot(v, lmc, pch = 19, col = \"black\",\n     xlab = \"Distance (m)\", ylab = \"Semivariance\",\n     scales = list(alternating = 1, tck = c(1, 0)))\n\n\n\n\nDirect and cross empirical semivariograms of log-lead (Pb, 50 samples) and log-zinc (Zn, 155 samples), with the fitted linear model of coregionalization."
+  },
+  {
+    "objectID": "Chapter3_Example2.html#co-kriging-predictions",
+    "href": "Chapter3_Example2.html#co-kriging-predictions",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "4.3 Co-kriging predictions",
+    "text": "4.3 Co-kriging predictions\nThe co-kriging predictions are computed with the function predict() applied to the fitted gstat object (unlike krige(), which is designed for a single variable):\n\npred_cokrig &lt;- predict(lmc, grid_sf)\n\nLinear Model of Coregionalization found. Good.\n[using ordinary cokriging]\n\nhead(pred_cokrig)\n\nSimple feature collection with 6 features and 5 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 181100 ymin: 333660 xmax: 181220 ymax: 333740\nProjected CRS: Amersfoort / RD New\n   Pb.pred    Pb.var  Zn.pred    Zn.var cov.Pb.Zn              geometry\n1 5.437104 0.2971325 6.578509 0.3271530 0.2934217 POINT (181180 333740)\n2 5.517853 0.2513901 6.671566 0.2664148 0.2407120 POINT (181140 333700)\n3 5.425476 0.2646604 6.565109 0.2840377 0.2560045 POINT (181180 333700)\n4 5.333357 0.2794909 6.458951 0.3037310 0.2730943 POINT (181220 333700)\n5 5.610444 0.2030815 6.778268 0.2022671 0.1850444 POINT (181100 333660)\n6 5.508475 0.2176514 6.660759 0.2216173 0.2018351 POINT (181140 333660)\n\n\nFor each node of the grid, it returns the predictions and variances of both variables, and the covariance between them:\n\n\n\n\n\n\n\n\nColumn\nMeaning\nNotation\n\n\n\n\nPb.pred\nPrediction of lead (log scale)\n\\(\\hat{Z}_1(\\mathbf{s}_0)\\)\n\n\nPb.var\nCo-kriging variance of lead (log scale)\n\\(\\sigma_{CK}^2(\\mathbf{s}_0)\\)\n\n\nZn.pred, Zn.var\nPrediction and variance of zinc\n—\n\n\ncov.Pb.Zn\nCovariance between both predictions\n—\n\n\n\nWe are interested in the columns of the primary variable (Pb.pred and Pb.var)."
+  },
+  {
+    "objectID": "Chapter3_Example2.html#predictions",
+    "href": "Chapter3_Example2.html#predictions",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "Predictions",
+    "text": "Predictions\n\n\n\n\n\nPredictions of lead (log scale) with ordinary kriging and co-kriging.\n\n\n\n\n\n\n\n\n\n\nNoteInterpretation\n\n\n\nBoth maps show the same general pattern (higher concentrations near the river), but the co-kriging map is more detailed. In the areas without lead samples, ordinary kriging produces a smooth surface, while co-kriging uses the zinc samples to reproduce local variations. For example, the band of high concentrations along the river (in the north and centre of the study area) is much better captured by co-kriging.\n\n\n\n\n\n\n\n\nNote\n\n\n\nPredictions are shown on the log scale, the same scale as their standard errors. To obtain a final map of lead concentrations in ppm, predictions should be back-transformed with exp()."
+  },
+  {
+    "objectID": "Chapter3_Example2.html#standard-errors",
+    "href": "Chapter3_Example2.html#standard-errors",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "Standard errors",
+    "text": "Standard errors\n\npred_krig$se &lt;- sqrt(pred_krig$var1.var)\npred_cokrig$se &lt;- sqrt(pred_cokrig$Pb.var)\n\n\n\n\n\n\nStandard errors of the predictions of lead (log scale) with ordinary kriging and co-kriging.\n\n\n\n\n\n\n\n\n\n\nNoteInterpretation\n\n\n\n\nWith ordinary kriging, the standard error is small only near the lead samples (triangles) and increases in the areas where only zinc has been observed (crosses).\nWith co-kriging, the standard error is reduced over almost the whole study area, also near the zinc samples. The median standard error decreases from 0.52 to 0.43."
+  },
+  {
+    "objectID": "Chapter3_Example2.html#solution",
+    "href": "Chapter3_Example2.html#solution",
+    "title": "Example 3.2: Meuse data. Co-kriging prediction",
+    "section": "Solution",
+    "text": "Solution\nCross-validation errors with lead observed at all 155 locations:\n\n\n            Method   MAE  RMSE\n1 Ordinary kriging 0.295 0.402\n2       Co-kriging 0.293 0.399\n\n\nInterpretation:\n\nWhen lead has been observed at all 155 locations, co-kriging hardly improves on ordinary kriging: the RMSE is 0.402 with ordinary kriging and 0.399 with co-kriging, whereas in the example (lead observed at only 50 locations) co-kriging reduced the RMSE by about 22%.\nThe reason is that zinc does not provide new spatial information: at every location where zinc is available, lead is also available. Co-kriging is most useful when the secondary variable has been observed at many more locations than the primary variable, as in the example."
   }
 ]

@@ -1,0 +1,350 @@
+---
+title: "Example 3.2: Meuse data. Co-kriging prediction"
+author: "Aritz Adin and Tomás Goicoa"
+date: 2026-11-18
+date-format: "MMM/YYYY"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-copy: true
+    embed-resources: true
+resources:
+  - Chapter3_Example2.R
+execute:
+  warning: false
+  message: false
+---
+
+# Objectives
+
+In this example we will:
+
+- Predict the concentration of **lead** (primary variable) in the Meuse study area using **zinc** (secondary variable), in the typical situation where the secondary variable has been observed at many more locations than the primary variable.
+- Compare **ordinary kriging** (lead only) and **ordinary co-kriging** (lead and zinc) using prediction maps, their standard errors and cross-validation.
+
+::: {.callout-tip title="R script"}
+You can download the R script with all the code of this example and follow it step by step in RStudio:
+<a href="Chapter3_Example2.R" download>**Chapter3_Example2.R**</a>
+:::
+
+# Packages
+
+```{r}
+library(dplyr)
+library(gstat)
+library(sf)
+```
+
+# Description of the data
+
+We use again the `meuse` dataset (see [Example 3.1](./Chapter3_Example1.html)), together with the `meuse.grid` dataset, which contains the 3103 nodes of a regular grid (40 m × 40 m) covering the study area, where predictions will be computed.
+
+```{r}
+data(meuse, package="sp")         # soil samples
+data(meuse.grid, package="sp")    # prediction grid
+
+meuse_sf <- meuse |>
+  as_tibble() |>
+  st_as_sf(coords=c("x","y"), crs=28992)
+
+grid_sf <- meuse.grid |>
+  as_tibble() |>
+  st_as_sf(coords=c("x","y"), crs=28992)
+```
+
+## Simulating the typical situation of co-kriging {.unnumbered}
+
+In the Meuse data, lead and zinc have been measured at the same 155 locations. To reproduce the typical situation of co-kriging, we assume that lead has only been measured at a **random subset of 50 samples**, while zinc is available at all of them.
+
+```{r}
+set.seed(123)
+idx <- sample(nrow(meuse_sf), 50)
+
+lead_sf <- meuse_sf |> slice(idx)   # primary variable: 50 samples
+zinc_sf <- meuse_sf                 # secondary variable: 155 samples
+```
+
+```{r}
+#| echo: false
+#| purl: false
+#| fig-cap: Sampling locations of lead and zinc.
+#| fig-height: 6
+#| fig-width: 5
+
+par(mar = c(0.5, 0.5, 0.5, 0.5))
+plot(st_geometry(grid_sf), pch = 15, cex = 0.3, col = "grey90")
+plot(st_geometry(meuse_sf |> slice(-idx)), pch = 3, cex = 0.7, col = "grey20", add = TRUE)
+plot(st_geometry(lead_sf), pch = 24, cex = 1, bg = "black", col = "white", add = TRUE)
+legend("bottomright", legend = c("Pb and Zn observed", "Only Zn observed"),
+       pch = c(24, 3), pt.bg = c("black", NA), col = c("black", "grey20"), bty = "n")
+```
+
+# Ordinary kriging (lead only)
+
+First, we predict lead using only its own 50 observations, as in Chapter 2.
+
+```{r}
+v_lead <- variogram(log(lead) ~ 1, lead_sf)
+vgm_lead <- fit.variogram(v_lead, model=vgm(psill=0.5, model="Sph",
+                                            range=1000, nugget=0.05))
+vgm_lead
+
+pred_krig <- krige(log(lead) ~ 1, lead_sf, grid_sf, model=vgm_lead)
+head(pred_krig)
+```
+
+The function `krige()` returns, for each node of the grid:
+
+| Column | Meaning | Notation |
+|---|---|---|
+| `var1.pred` | Prediction (log scale) | $\hat{Z}_1(\mathbf{s}_0)$ |
+| `var1.var` | Kriging variance (log scale) | $\sigma_K^2(\mathbf{s}_0)$ |
+
+## Direct and cross empirical semivariograms
+
+As in Example 3.1, we create a `gstat` object with both variables. Note that now each variable has **its own data set**: lead is taken from `lead_sf` (50 samples) and zinc from `zinc_sf` (155 samples).
+
+```{r}
+g <- gstat(NULL, id = "Pb", formula = log(lead) ~ 1, data = lead_sf)
+g <- gstat(g,    id = "Zn", formula = log(zinc) ~ 1, data = zinc_sf)
+
+v <- variogram(g)
+v |> filter(dist==0)
+```
+
+::: {.callout-important title="Zero-distance lag in the cross-semivariogram"}
+The 50 lead samples are also zinc samples, so the cross-semivariogram includes pairs of observations at **distance 0** (lead and zinc measured at the same location). This creates an extra lag with `dist = 0`, which must be removed before fitting the model (otherwise, `fit.lmc()` returns an error).
+:::
+
+```{r}
+v <- v |> filter(dist>0)
+```
+
+## Linear model of coregionalization
+
+```{r}
+lmc <- fit.lmc(v, g, model=vgm_lead)
+lmc$model
+```
+
+```{r}
+#| fig-width: 7
+#| fig-height: 6
+#| fig-cap: "Direct and cross empirical semivariograms of log-lead (Pb, 50 samples) and log-zinc (Zn, 155 samples), with the fitted linear model of coregionalization."
+
+plot(v, lmc, pch = 19, col = "black",
+     xlab = "Distance (m)", ylab = "Semivariance",
+     scales = list(alternating = 1, tck = c(1, 0)))
+```
+
+## Co-kriging predictions
+
+The co-kriging predictions are computed with the function `predict()` applied to the fitted `gstat` object (unlike `krige()`, which is designed for a single variable):
+
+```{r}
+pred_cokrig <- predict(lmc, grid_sf)
+head(pred_cokrig)
+```
+
+For each node of the grid, it returns the predictions and variances of **both** variables, and the covariance between them:
+
+| Column | Meaning | Notation |
+|---|---|---|
+| `Pb.pred` | Prediction of lead (log scale) | $\hat{Z}_1(\mathbf{s}_0)$ |
+| `Pb.var` | Co-kriging variance of lead (log scale) | $\sigma_{CK}^2(\mathbf{s}_0)$ |
+| `Zn.pred`, `Zn.var` | Prediction and variance of zinc | — |
+| `cov.Pb.Zn` | Covariance between both predictions | — |
+
+We are interested in the columns of the primary variable (`Pb.pred` and `Pb.var`).
+
+# Comparison of the predictions
+
+```{r}
+#| echo: false
+#| purl: false
+
+# Regular 40 m grid -> matrix, so that image() draws a continuous raster
+xs <- sort(unique(meuse.grid$x))
+ys <- sort(unique(meuse.grid$y))
+to_matrix <- function(z) {
+  mat <- matrix(NA, length(xs), length(ys))
+  mat[cbind(match(meuse.grid$x, xs), match(meuse.grid$y, ys))] <- z
+  mat
+}
+
+zn_only <- meuse_sf |> slice(-idx)
+
+draw_pair <- function(z1, z2, titles, legend_title, palette = "YlOrRd", n_col = 20) {
+  brk <- seq(min(c(z1, z2)), max(c(z1, z2)), length.out = n_col + 1)
+  pal <- hcl.colors(n_col, palette, rev = TRUE)
+  layout(matrix(1:3, 1), widths = c(1, 1, 0.3))
+  par(mar = c(0.5, 0.5, 2.5, 0.5))
+  for (k in 1:2) {
+    z <- if (k == 1) z1 else z2
+    image(xs, ys, to_matrix(z), col = pal, breaks = brk, asp = 1,
+          axes = FALSE, xlab = "", ylab = "", main = titles[k])
+    plot(st_geometry(zn_only), pch = 3, cex = 0.5, col = "grey20", add = TRUE)
+    plot(st_geometry(lead_sf), pch = 24, cex = 0.9, bg = "black", col = "white",
+         add = TRUE)
+    if (k == 1) legend("bottomright", legend = c("Pb and Zn observed", "Only Zn observed"),
+                       pch = c(24, 3), pt.bg = c("black", NA), col = c("black", "grey20"),
+                       bty = "n", cex = 0.9)
+  }
+  par(mar = c(12, 1.5, 12, 4.5))
+  image(1, brk[-1] - diff(brk) / 2, t(seq_along(pal)), col = pal,
+        axes = FALSE, xlab = "", ylab = "")
+  axis(4, las = 1, cex.axis = 0.8)
+  mtext(legend_title, side = 3, line = 0.8, cex = 0.7, adj = 0)
+  box()
+}
+```
+
+## Predictions {.unnumbered}
+
+```{r}
+#| echo: false
+#| purl: false
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "Predictions of lead (log scale) with ordinary kriging and co-kriging."
+
+draw_pair(pred_krig$var1.pred, pred_cokrig$Pb.pred,
+          titles = c("Ordinary kriging (Pb only)", "Co-kriging (Pb + Zn)"),
+          legend_title = "log(lead)")
+```
+
+::: {.callout-note title="Interpretation"}
+Both maps show the same general pattern (higher concentrations near the river), but the co-kriging map is **more detailed**. In the areas without lead samples, ordinary kriging produces a smooth surface, while co-kriging uses the zinc samples to reproduce local variations. For example, the band of high concentrations along the river (in the north and centre of the study area) is much better captured by co-kriging.
+:::
+
+::: {.callout-note}
+Predictions are shown on the log scale, the same scale as their standard errors. To obtain a final map of lead concentrations in ppm, predictions should be back-transformed with `exp()`.
+:::
+
+
+## Standard errors {.unnumbered}
+
+```{r}
+pred_krig$se <- sqrt(pred_krig$var1.var)
+pred_cokrig$se <- sqrt(pred_cokrig$Pb.var)
+```
+
+```{r}
+#| echo: false
+#| purl: false
+#| fig-width: 10
+#| fig-height: 6
+#| fig-cap: "Standard errors of the predictions of lead (log scale) with ordinary kriging and co-kriging."
+
+draw_pair(pred_krig$se, pred_cokrig$se,
+          titles = c("Ordinary kriging (Pb only)", "Co-kriging (Pb + Zn)"),
+          legend_title = "Standard error\n(log scale)", palette = "Blues")
+```
+
+::: {.callout-note title="Interpretation"}
+- With ordinary kriging, the standard error is small only near the lead samples (triangles) and increases in the areas where only zinc has been observed (crosses).
+- With co-kriging, the standard error is reduced over almost the whole study area, also near the zinc samples. The median standard error decreases from `r round(median(pred_krig$se), 2)` to `r round(median(pred_cokrig$se), 2)`.
+:::
+
+
+# Cross-validation
+
+The reduction of the standard errors is what the fitted model predicts. To check whether co-kriging actually reduces the prediction errors, we compare both methods using leave-one-out cross-validation (Chapter 2) on the 50 lead samples.
+
+```{r}
+# Ordinary kriging
+cv_krig <- krige.cv(log(lead) ~ 1, lead_sf, model=vgm_lead, nfold=nrow(lead_sf))
+
+# Co-kriging
+cv_cokrig <- gstat.cv(lmc, nfold=nrow(lead_sf), remove.all=TRUE, debug.level=0)
+```
+
+::: {.callout-important title="The argument `remove.all = TRUE`"}
+By default, `gstat.cv()` only removes the observation of the primary variable at each location, and keeps the zinc observation measured at the **same location**. Since lead and zinc are very highly correlated, this would give over-optimistic results, because the nodes of the prediction grid have no zinc observations. With `remove.all = TRUE`, the observations of **both** variables at that location are removed.
+:::
+
+Both functions return the cross-validation errors in the column `residual` (observed minus predicted value):
+
+```{r}
+cv_results <- data.frame(
+  Method = c("Ordinary kriging", "Co-kriging"),
+  MAE    = c(mean(abs(cv_krig$residual)), mean(abs(cv_cokrig$residual))),
+  RMSE   = c(sqrt(mean(cv_krig$residual^2)), sqrt(mean(cv_cokrig$residual^2)))
+)
+cv_results |> 
+  mutate(MAE = round(MAE, 3),
+         RMSE=round(RMSE, 3))
+```
+
+::: {.callout-note title="Interpretation"}
+Co-kriging reduces both cross-validation errors: the RMSE decreases from `r sprintf("%.3f", cv_results$RMSE[1])` to `r sprintf("%.3f", cv_results$RMSE[2])` (a reduction of about `r round(100 * (1 - cv_results$RMSE[2] / cv_results$RMSE[1]))`%). Therefore, in this situation (few lead samples and many zinc samples strongly correlated in space), using zinc as a secondary variable clearly improves the prediction of lead.
+:::
+
+# Summary of the workflow
+
+| Step | Function | Result |
+|---|---|---|
+| Ordinary kriging of the primary variable | `variogram()` + `fit.variogram()` + `krige()` | Predictions and kriging variances |
+| Direct and cross empirical semivariograms | `gstat()` + `variogram()` | Points of the three semivariograms |
+| Linear model of coregionalization | `fit.lmc()` | Fitted `gstat` object |
+| Co-kriging predictions | `predict()` | Predictions and co-kriging variances |
+| Comparison of both methods | `krige.cv()` and `gstat.cv(..., remove.all = TRUE)` | MAE and RMSE |
+
+# Exercise
+
+In the Meuse data, lead and zinc have actually been measured at the same 155 locations (co-located samples). Repeat the comparison between ordinary kriging and co-kriging using **all the lead observations**.
+
+Answer the following questions:
+
+- Does co-kriging still reduce the cross-validation errors?
+- Why?
+
+## Solution {.unnumbered}
+
+```{r}
+#| include: false
+#| purl: false
+
+# 1. Data: lead and zinc at the same 155 locations ------------
+lead_all <- meuse_sf
+
+# 2. Ordinary kriging ------------------------------------------
+v_lead_all <- variogram(log(lead) ~ 1, lead_all)
+vgm_lead_all <- fit.variogram(v_lead_all,
+                              model = vgm(psill = 0.5, model = "Sph",
+                                          range = 1000, nugget = 0.05))
+cv_krig_all <- krige.cv(log(lead) ~ 1, lead_all, model = vgm_lead_all,
+                        nfold = nrow(lead_all), debug.level = 0)
+
+# 3. Co-kriging -------------------------------------------------
+g_all <- gstat(NULL, id = "Pb", formula = log(lead) ~ 1, data = lead_all)
+g_all <- gstat(g_all, id = "Zn", formula = log(zinc) ~ 1, data = meuse_sf)
+v_all <- variogram(g_all) |> filter(dist > 0)
+lmc_all <- fit.lmc(v_all, g_all, model = vgm_lead_all)
+cv_cokrig_all <- gstat.cv(lmc_all, nfold = nrow(lead_all), remove.all = TRUE,
+                          debug.level = 0)
+
+# 4. Comparison --------------------------------------------------
+cv_results_all <- data.frame(
+  Method = c("Ordinary kriging", "Co-kriging"),
+  MAE    = c(mean(abs(cv_krig_all$residual)), mean(abs(cv_cokrig_all$residual))),
+  RMSE   = c(sqrt(mean(cv_krig_all$residual^2)), sqrt(mean(cv_cokrig_all$residual^2)))
+)
+```
+
+Cross-validation errors with lead observed at all 155 locations:
+
+```{r}
+#| echo: false
+#| purl: false
+cv_results_all |> 
+  mutate(MAE = round(MAE, 3),
+         RMSE=round(RMSE, 3))
+```
+
+**Interpretation:**
+
+- When lead has been observed at all 155 locations, co-kriging **hardly improves** on ordinary kriging: the RMSE is `r sprintf("%.3f", cv_results_all$RMSE[1])` with ordinary kriging and `r sprintf("%.3f", cv_results_all$RMSE[2])` with co-kriging, whereas in the example (lead observed at only 50 locations) co-kriging reduced the RMSE by about `r round(100 * (1 - cv_results$RMSE[2] / cv_results$RMSE[1]))`%.
+- The reason is that zinc does not provide new spatial information: at every location where zinc is available, lead is also available. Co-kriging is most useful when the secondary variable has been observed at **many more locations** than the primary variable, as in the example.

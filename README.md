@@ -28,6 +28,7 @@ Navarra)
 |  | Description |
 |----|----|
 | [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
+| [Example 3.2](./Chapter3_Example2.html) | Meuse data: co-kriging prediction |
 
 ------------------------------------------------------------------------
 
@@ -36,7 +37,7 @@ Navarra)
 The practical sessions use the following R packages:
 
 ``` r
-install.packages(c("dplyr","gstat","sf","sp"))
+install.packages(c("dplyr","gstat","sf","sp","tmap"))
 ```
 
 ------------------------------------------------------------------------
@@ -44,7 +45,10 @@ install.packages(c("dplyr","gstat","sf","sp"))
 ### References
 
 - Bivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). *Applied Spatial
-  Data Analysis with R* (2nd ed.). Springer.
+  Data Analysis with R* (2nd ed.). Springer. <https://asdar-book.org/>
 
 - Pebesma, E., & Bivand, R. (2023). *Spatial Data Science: With
-  Applications in R*. Chapman & Hall/CRC.
+  Applications in R*. Chapman & Hall/CRC. <https://r-spatial.org/book>
+
+- Tennekes M (2018). “tmap: Thematic Maps in R.” *Journal of Statistical
+  Software*, 84(6), 1-39. <https://doi.org/10.18637/jss.v084.i06>

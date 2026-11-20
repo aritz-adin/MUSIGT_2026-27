@@ -9,9 +9,9 @@ website:
       - href: index.qmd
         text: Home
       - href: Chapter3_Example1.qmd
-        text: Example 3.1 - meuse data
-      # - href: Chapter2_Exercises.qmd
-      #   text: Chapter 2 - GLMM
+        text: Example 3.1
+      - href: Chapter3_Example2.qmd
+        text: Example 3.2
 
 format:
   html:

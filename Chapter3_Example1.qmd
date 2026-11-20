@@ -61,6 +61,7 @@ Both metals come from the same industrial sources and are transported in the sam
 
 ```{r}
 #| echo: false
+#| purl: false
 #| fig-cap: Lead and zinc concentrations (ppm) in the Meuse soil samples, classified by quintiles.
 #| fig-height: 5
 #| fig-width: 9
@@ -176,6 +177,7 @@ plot(v_lead, vgm_lead, pch = 19,
 
 ```{r}
 #| echo: false
+#| purl: false
 library(lattice)
 
 # Parameters of the fitted model
@@ -311,6 +313,7 @@ Answer the following questions:
 
 ```{r}
 #| include: false
+#| purl: false
 # 1. Data -----------------------------------------------------
 
 # om has missing values: remove those samples first
