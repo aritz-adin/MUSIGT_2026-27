@@ -1,7 +1,7 @@
 ---
 title: "Example 3.2: Meuse data. Co-kriging prediction"
 author: "Aritz Adin and Tomás Goicoa"
-date: 2026-11-18
+date: 2026-12-01
 date-format: "MMM/YYYY"
 format:
   html:

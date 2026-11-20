@@ -3,15 +3,25 @@ project:
   output-dir: docs
 
 website:
-  title: "Ejercicios con R"
+  title: "Practical sessions with R"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - href: Chapter3_Example1.qmd
-        text: Example 3.1
-      - href: Chapter3_Example2.qmd
-        text: Example 3.2
+      - text: "Chapter 3 - Examples"
+        menu:
+          - href: Chapter3_Example1.qmd
+            text: "Example 3.1: Direct and cross-semivariograms, LMC"
+          - href: Chapter3_Example2.qmd
+            text: "Example 3.2: Co-kriging prediction"
+          - href: Chapter3_Example3.qmd
+            text: "Example 3.3"
+      - text: "Chapter 3 - Exercises"
+        menu:
+          - href: Chapter3_Exercise1.qmd
+            text: "Exercise 3.1: Co-kriging of cadmium using copper"
+          - href: Chapter3_Exercise2.qmd
+            text: "Exercise 3.2"
 
 format:
   html:
@@ -21,4 +31,3 @@ format:
     link-external-newwindow: true
 
 editor: visual
-

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Ejercicios con R</title>
+<title>Ejercicios con R – Practical sessions with R</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -118,7 +118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Ejercicios con R</span>
+    <span class="navbar-title">Practical sessions with R</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -131,14 +131,40 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./Chapter3_Example1.html"> 
-<span class="menu-text">Example 3.1</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapter-3---examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapter 3 - Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapter-3---examples">    
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example1.html">
+ <span class="dropdown-text">Example 3.1: Direct and cross-semivariograms, LMC</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./Chapter3_Example2.html"> 
-<span class="menu-text">Example 3.2</span></a>
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example2.html">
+ <span class="dropdown-text">Example 3.2: Co-kriging prediction</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example3.qmd">
+ <span class="dropdown-text">Example 3.3</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapter-3---exercises" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapter 3 - Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapter-3---exercises">    
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Exercise1.html">
+ <span class="dropdown-text">Exercise 3.1: Co-kriging of cadmium using copper</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Exercise2.qmd">
+ <span class="dropdown-text">Exercise 3.2</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -157,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#análisis-y-predicción-estadística-de-datos-espacio-temporales" id="toc-análisis-y-predicción-estadística-de-datos-espacio-temporales" class="nav-link active" data-scroll-target="#análisis-y-predicción-estadística-de-datos-espacio-temporales">Análisis y Predicción Estadística de Datos Espacio-Temporales</a>
   <ul class="collapse">
-  <li><a href="#contents" id="toc-contents" class="nav-link" data-scroll-target="#contents">Contents</a></li>
+  <li><a href="#chapter-3-cokriging" id="toc-chapter-3-cokriging" class="nav-link" data-scroll-target="#chapter-3-cokriging">Chapter 3: Cokriging</a></li>
   <li><a href="#requirements" id="toc-requirements" class="nav-link" data-scroll-target="#requirements">Requirements</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
@@ -196,10 +222,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 <p><img src="img/banner.png" class="img-fluid"></p>
 <hr>
-<section id="contents" class="level3">
-<h3 class="anchored" data-anchor-id="contents">Contents</h3>
-<section id="chapter-3-cokriging" class="level4">
-<h4 class="anchored" data-anchor-id="chapter-3-cokriging">Chapter 3: Cokriging</h4>
+<section id="chapter-3-cokriging" class="level3">
+<h3 class="anchored" data-anchor-id="chapter-3-cokriging">Chapter 3: Cokriging</h3>
+<p><strong>Examples</strong> (guided practicals with commented code)</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -209,17 +234,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="./Chapter3_Example1.html">Example 3.1</a></td>
+<td>📘 <a href="./Chapter3_Example1.html">Example 3.1</a></td>
 <td>Meuse data: direct and cross-semivariograms, linear model of coregionalization</td>
 </tr>
 <tr class="even">
-<td><a href="./Chapter3_Example2.html">Example 3.2</a></td>
+<td>📘 <a href="./Chapter3_Example2.html">Example 3.2</a></td>
 <td>Meuse data: co-kriging prediction</td>
+</tr>
+<tr class="odd">
+<td>📘 <a href="./Chapter3_Example3.html">Example 3.3</a></td>
+<td>PENDIENTE</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exercises</strong> (to be solved by the students)</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>✏️ <a href="./Chapter3_Exercise1.html">Exercise 3.1</a></td>
+<td>Meuse data: co-kriging of cadmium using copper</td>
+</tr>
+<tr class="even">
+<td>✏️ <a href="./Chapter3_Exercise2.html">Exercise 3.2</a></td>
+<td>PENDIENTE</td>
 </tr>
 </tbody>
 </table>
 <hr>
-</section>
 </section>
 <section id="requirements" class="level3">
 <h3 class="anchored" data-anchor-id="requirements">Requirements</h3>
@@ -232,7 +279,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li><p>Bivand, R. S., Pebesma, E., &amp; Gómez-Rubio, V. (2013). <em>Applied Spatial Data Analysis with R</em> (2nd ed.). Springer. <a href="https://asdar-book.org/">https://asdar-book.org/</a></p></li>
 <li><p>Pebesma, E., &amp; Bivand, R. (2023). <em>Spatial Data Science: With Applications in R</em>. Chapman &amp; Hall/CRC. <a href="https://r-spatial.org/book">https://r-spatial.org/book</a></p></li>
-<li><p>Tennekes M (2018). “tmap: Thematic Maps in R.” <em>Journal of Statistical Software</em>, 84(6), 1-39. <a href="DOI:%2010.18637/jss.v084.i06">https://doi.org/10.18637/jss.v084.i06</a></p></li>
+<li><p>Tennekes M (2018). “tmap: Thematic Maps in R.” <em>Journal of Statistical Software</em>, 84(6), 1-39. <a href="https://doi.org/10.18637/jss.v084.i06" class="uri">https://doi.org/10.18637/jss.v084.i06</a></p></li>
 </ul>
 
 

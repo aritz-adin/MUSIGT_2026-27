@@ -8,7 +8,7 @@
 
 <meta name="author" content="Aritz Adin and Tomás Goicoa">
 
-<title>Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization – Ejercicios con R</title>
+<title>Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization – Practical sessions with R</title>
 <style>
 
 code{white-space: pre-wrap;}
@@ -4181,7 +4181,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Ejercicios con R</span>
+    <span class="navbar-title">Practical sessions with R</span>
     </a>
   </div>
             <div id="quarto-search" class title="Search"></div>
@@ -4194,14 +4194,40 @@ window.Quarto = {
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./Chapter3_Example1.html" aria-current="page"> 
-<span class="menu-text">Example 3.1</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapter-3---examples" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapter 3 - Examples</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapter-3---examples">    
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example1.html">
+ <span class="dropdown-text">Example 3.1: Direct and cross-semivariograms, LMC</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./Chapter3_Example2.html"> 
-<span class="menu-text">Example 3.2</span></a>
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example2.html">
+ <span class="dropdown-text">Example 3.2: Co-kriging prediction</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Example3.qmd">
+ <span class="dropdown-text">Example 3.3</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chapter-3---exercises" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chapter 3 - Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chapter-3---exercises">    
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Exercise1.html">
+ <span class="dropdown-text">Exercise 3.1: Co-kriging of cadmium using copper</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./Chapter3_Exercise2.qmd">
+ <span class="dropdown-text">Exercise 3.2</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -4264,7 +4290,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">Nov/2026</p>
+      <p class="date">Dec/2026</p>
     </div>
   </div>
   
@@ -4308,6 +4334,26 @@ window.Quarto = {
 </section>
 <section id="description-of-the-data" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Description of the data</h1>
+<div class="callout callout-style-default callout-note callout-titled" title="Why lead?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why lead?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Lead (Pb) is a serious human health hazard: it can be inhaled as dust from disturbed soil, or taken up by plants and ingested. As a reference, the Berlin Digital Environmental Atlas establishes the following guide values for lead in soils:</p>
+<ul>
+<li>above 600 mg/kg, grain crops cannot be grown for human consumption;</li>
+<li>above 300 mg/kg, crops must be tested;</li>
+<li>above 100 mg/kg, consumption of leafy vegetables should be avoided;</li>
+<li>below 200 mg/kg is required for sports fields or parks.</li>
+</ul>
+<p>Natural levels in unpolluted soils are around 30 mg/kg. In the Meuse data, lead ranges from 37 to 654 mg/kg, and more than half of the samples exceed 100 mg/kg.</p>
+</div>
+</div>
 <p>The <code>meuse</code> dataset (included in the <code>sp</code> package) contains 155 soil samples collected in the floodplain of the river Meuse (the Netherlands), with the concentrations of several heavy metals (in ppm, i.e., mg/kg). The coordinates are expressed in the Dutch national grid (EPSG:28992), in metres.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(meuse, <span class="at">package=</span><span class="st">&quot;sp&quot;</span>)        <span class="co"># soil samples</span></span>

@@ -21,14 +21,20 @@ Navarra)
 
 ------------------------------------------------------------------------
 
-### Contents
+### Chapter 3: Cokriging
 
-#### Chapter 3: Cokriging
+**Examples** (guided practicals with commented code)
 
 |  | Description |
 |----|----|
-| [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
-| [Example 3.2](./Chapter3_Example2.html) | Meuse data: co-kriging prediction |
+| 📘 [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
+| 📘 [Example 3.2](./Chapter3_Example2.html) | Meuse data: co-kriging prediction |
+
+**Exercises** (to be solved by the students)
+
+|  | Description |
+|----|----|
+| [Exercise 3.1](./Chapter3_Exercise1.html) | Meuse data: co-kriging of cadmium using copper |
 
 ------------------------------------------------------------------------
 

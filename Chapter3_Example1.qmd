@@ -1,7 +1,7 @@
 ---
 title: "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization"
 author: "Aritz Adin and Tomás Goicoa"
-date: 2026-11-18
+date: 2026-12-01
 date-format: "MMM/YYYY"
 format:
   html:
@@ -30,6 +30,7 @@ You can download the R script with all the code of this example and follow it st
 <a href="Chapter3_Example1.R" download>**Chapter3_Example1.R**</a>
 :::
 
+
 # Packages
 
 ```{r}
@@ -39,6 +40,20 @@ library(sf)
 ```
 
 # Description of the data
+
+::: {.callout-note title="Why lead?"}
+Lead (Pb) is a serious human health hazard: it can be inhaled as dust from disturbed
+soil, or taken up by plants and ingested. As a reference, the Berlin Digital
+Environmental Atlas establishes the following guide values for lead in soils:
+
+- above 600 mg/kg, grain crops cannot be grown for human consumption;
+- above 300 mg/kg, crops must be tested;
+- above 100 mg/kg, consumption of leafy vegetables should be avoided;
+- below 200 mg/kg is required for sports fields or parks.
+
+Natural levels in unpolluted soils are around 30 mg/kg. In the Meuse data, lead
+ranges from 37 to 654 mg/kg, and more than half of the samples exceed 100 mg/kg.
+:::
 
 The `meuse` dataset (included in the `sp` package) contains 155 soil samples collected in the floodplain of the river Meuse (the Netherlands), with the concentrations of several heavy metals (in ppm, i.e., mg/kg). The coordinates are expressed in the Dutch national grid (EPSG:28992), in metres.
 
