@@ -74,10 +74,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-97eac0c3d27f4e17d3e8607511e63d19.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -117,7 +117,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a href="https://spatialstatisticsupna.github.io/" class="navbar-brand navbar-brand-logo">
+    <img src="./img/LogoGrupo_eng.png" alt="Spatial Statistics group, Public University of Navarre" class="navbar-logo light-content">
+    <img src="./img/LogoGrupo_eng.png" alt="Spatial Statistics group, Public University of Navarre" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="https://spatialstatisticsupna.github.io/">
     <span class="navbar-title">Practical sessions with R</span>
     </a>
   </div>
@@ -287,6 +291,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
+<script>
+
+  // Open the navbar logo link in a new tab
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  document.querySelectorAll(".navbar img.navbar-logo").forEach(function (img) {
+
+    var link = img.closest("a");
+
+    if (link) {
+
+      link.target = "_blank";
+
+      link.rel = "noopener";
+
+    }
+
+  });
+
+});
+
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -693,6 +720,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Aritz Adin &amp; Tomás Goicoa · Universidad Pública de Navarra</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 

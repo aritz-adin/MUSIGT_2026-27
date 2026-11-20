@@ -1,1 +1,105 @@
 /* css styles */
+
+/* ---- Colour palette ---------------------------------------------------- */
+:root {
+  --main:   #1f4e79;   /* dark blue: navbar, title banner, headings */
+  --accent: #2a7ab0;   /* lighter blue: links, borders */
+  --soft:   #eef4fa;   /* very light blue: backgrounds */
+}
+
+/* ---- General text ------------------------------------------------------ */
+body {
+  line-height: 1.6;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* ---- Headings ---------------------------------------------------------- */
+h1, .h1 {
+  color: var(--main);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.25rem;
+  margin-top: 2.5rem;
+}
+
+h2, .h2 {
+  color: var(--main);
+  margin-top: 2rem;
+}
+
+/* Title of each page (inside the coloured banner) */
+.quarto-title-banner .title {
+  font-weight: 600;
+}
+
+/* Title banner: light background with a bottom line */
+.quarto-title-banner {
+  border-bottom: 3px solid var(--accent);
+}
+
+/* ---- Navbar ------------------------------------------------------------ */
+.navbar .nav-link,
+.navbar .navbar-title {
+  font-weight: 500;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: var(--soft);
+  color: var(--main);
+}
+
+/* ---- Code -------------------------------------------------------------- */
+div.sourceCode {
+  border-radius: 6px;
+}
+
+/* R output */
+pre:not(.sourceCode) {
+  background-color: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+}
+
+/* ---- Tables ------------------------------------------------------------ */
+table {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+table thead th {
+  background-color: var(--main);
+  color: white;
+  border-bottom: none !important;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: var(--soft);
+}
+
+/* ---- Callouts ---------------------------------------------------------- */
+.callout {
+  border-radius: 6px;
+}
+
+/* ---- Figures ----------------------------------------------------------- */
+figure img,
+.figure img {
+  border-radius: 4px;
+}
+
+.figure-caption,
+figcaption {
+  font-style: italic;
+  color: #555;
+}
+
+/* Logo in the navbar: white background so that it is readable */
+.navbar-brand .navbar-logo {
+  max-height: 42px;
+  background-color: white;
+  padding: 3px 6px;
+  border-radius: 4px;
+}

@@ -5,6 +5,10 @@ project:
 website:
   title: "Practical sessions with R"
   navbar:
+    logo: img/LogoGrupo_eng.png
+    logo-href: "https://spatialstatisticsupna.github.io/"
+    logo-alt: "Spatial Statistics group, Public University of Navarre"
+    background: "#1f4e79"
     left:
       - href: index.qmd
         text: Home
@@ -22,12 +26,20 @@ website:
             text: "Exercise 3.1: Co-kriging of cadmium using copper"
           - href: Chapter3_Exercise2.qmd
             text: "Exercise 3.2"
+  page-footer:
+    center: "Aritz Adin & Tomás Goicoa · Universidad Pública de Navarra"
 
 format:
   html:
     theme: cosmo
     css: styles.css
+    include-after-body: logo-newtab.html
     toc: true
     link-external-newwindow: true
+    title-block-banner: false
+    title-block-banner-color: "#1f4e79"
+    code-block-border-left: "#2a7ab0"
+    code-block-bg: true
+    highlight-style: github
 
 editor: visual

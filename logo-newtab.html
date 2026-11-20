@@ -1,0 +1,12 @@
+<script>
+  // Open the navbar logo link in a new tab
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".navbar img.navbar-logo").forEach(function (img) {
+    var link = img.closest("a");
+    if (link) {
+      link.target = "_blank";
+      link.rel = "noopener";
+    }
+  });
+});
+</script>

@@ -29,12 +29,14 @@ Navarra)
 |----|----|
 | 📘 [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
 | 📘 [Example 3.2](./Chapter3_Example2.html) | Meuse data: co-kriging prediction |
+| 📘 [Example 3.3](./Chapter3_Example3.html) | PENDIENTE |
 
 **Exercises** (to be solved by the students)
 
 |  | Description |
 |----|----|
-| [Exercise 3.1](./Chapter3_Exercise1.html) | Meuse data: co-kriging of cadmium using copper |
+| ✏️ [Exercise 3.1](./Chapter3_Exercise1.html) | Meuse data: co-kriging of cadmium using copper |
+| ✏️ [Exercise 3.2](./Chapter3_Exercise2.html) | PENDIENTE |
 
 ------------------------------------------------------------------------
 

@@ -11,7 +11,7 @@
     "href": "Chapter3_Example2.html",
     "title": "Example 3.2: Meuse data. Co-kriging prediction",
     "section": "",
-    "text": "In this example we will:\n\nPredict the concentration of lead (primary variable) in the Meuse study area using zinc (secondary variable), in the typical situation where the secondary variable has been observed at many more locations than the primary variable.\nCompare ordinary kriging (lead only) and ordinary co-kriging (lead and zinc) using prediction maps, their standard errors and cross-validation.\n\n\n\n\n\n\n\nTipR script\n\n\n\nYou can download the R script with all the code of this example and follow it step by step in RStudio: Chapter3_Example2.R"
+    "text": "In this example we will:\n\nPredict the concentration of lead (primary variable) in the Meuse study area using zinc (secondary variable), in the typical situation where the secondary variable has been observed at many more locations than the primary variable.\nCompare ordinary kriging (lead only) and ordinary co-kriging (lead and zinc) using prediction maps, their standard errors and cross-validation.\n\n\n\n\n\n\n\nTipR script\n\n\n\nYou can download the R script with all the code of this example and follow it step by step in RStudio:\n Download the R script"
   },
   {
     "objectID": "Chapter3_Example2.html#simulating-the-typical-situation-of-co-kriging",
@@ -67,7 +67,7 @@
     "href": "Chapter3_Example1.html",
     "title": "Example 3.1: Meuse data. Direct and cross-semivariograms, linear model of coregionalization",
     "section": "",
-    "text": "In this example we will:\n\nExplore two spatially correlated variables: the concentrations of lead (primary variable) and zinc (secondary variable) in the Meuse soil samples.\nCompute the direct semivariograms of both variables and their cross-semivariogram.\nFit a linear model of coregionalization, the joint model required by co-kriging.\n\n\n\n\n\n\n\nTipR script\n\n\n\nYou can download the R script with all the code of this example and follow it step by step in RStudio: Chapter3_Example1.R"
+    "text": "In this example we will:\n\nExplore two spatially correlated variables: the concentrations of lead (primary variable) and zinc (secondary variable) in the Meuse soil samples.\nCompute the direct semivariograms of both variables and their cross-semivariogram.\nFit a linear model of coregionalization, the joint model required by co-kriging.\n\n\n\n\n\n\n\nTipR script\n\n\n\nYou can download the R script with all the code of this example and follow it step by step in RStudio:\n Download the R script"
   },
   {
     "objectID": "Chapter3_Example1.html#log-transformation-of-lead-and-zinc-variables",
