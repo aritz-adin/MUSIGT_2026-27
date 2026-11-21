@@ -19,7 +19,7 @@ website:
           - href: Chapter3_Example2.qmd
             text: "Example 3.2: Co-kriging prediction"
           - href: Chapter3_Example3.qmd
-            text: "Example 3.3"
+            text: "Example 3.3: Navarre weather stations"
       - text: "Chapter 3 - Exercises"
         menu:
           - href: Chapter3_Exercise1.qmd

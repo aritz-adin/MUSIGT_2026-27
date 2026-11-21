@@ -1,0 +1,337 @@
+---
+title: "Example 3.3: Navarre weather stations. Co-kriging of maximum temperature"
+author: "Aritz Adin and Tomás Goicoa"
+date: 2026-12-01
+date-format: "MMM/YYYY"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-copy: true
+    embed-resources: true
+resources:
+  - Chapter3_Example3.R
+execute:
+  warning: false
+  message: false
+---
+
+```{r}
+#| include: false
+options(width = 120)
+```
+
+# Objectives
+
+In this example we will:
+
+- Predict the **maximum temperature** (primary variable) in Navarre on 6 February 2010 using the **minimum temperature** (secondary variable) recorded at the same weather stations.
+- Compare **ordinary kriging** and **ordinary co-kriging** using prediction maps, their standard errors and cross-validation.
+- Learn how to compare both methods **fairly**.
+
+::: {.callout-tip title="R script"}
+You can download the R script with all the code of this example and follow it step by step in RStudio:
+
+{{< downloadthis Chapter3_Example3.R dname="Chapter3_Example3" label="Download the R script" icon="file-earmark-code" type="outline-success" >}}
+:::
+
+# Packages
+
+```{r}
+library(dplyr)
+library(gstat)
+library(mapSpain)
+library(sf)
+library(tmap)
+```
+
+The `mapSpain` package provides the administrative boundaries of Spain (autonomous communities, provinces, municipalities...) as `sf` objects, so no additional files are needed to draw the maps.
+
+# Description of the data
+
+The data contain the daily records of 84 manual weather stations in Navarre on 6 February 2010. The file can be read directly from the course website:
+
+```{r}
+stations <- read.csv("https://raw.githubusercontent.com/aritz-adin/MUSIGT_2026-27/main/data/manual_20200206.csv",
+                     colClasses = c(CODE = "character"))
+head(stations)
+```
+
+
+| Column | Meaning |
+|---|---|
+| `CODE`, `STATION` | Code and name of the station |
+| `X`, `Y` | Coordinates (ETRS89 / UTM zone 30N, EPSG:25830), in metres |
+| `Z` | Altitude (m) |
+| `TMAX`, `TMIN` | Maximum and minimum temperature (ºC) |
+| `PRECIP` | Precipitation (mm) |
+
+```{r}
+stations_sf <- stations |>
+  st_as_sf(coords=c("X","Y"), crs=25830)
+```
+
+## Boundary of Navarre and prediction grid {.unnumbered}
+
+We obtain the boundary of Navarre with the function `esp_get_prov()` and transform it to the same coordinate reference system as the stations:
+
+```{r}
+Navarra <- esp_get_prov(prov = "Navarra") |>
+  st_transform(crs = 25830)
+```
+
+The prediction grid is a regular grid of points every **1 km** covering Navarre. The function `st_make_grid()` creates the grid over the bounding box of the boundary, and `st_filter()` keeps only the points inside Navarre:
+
+```{r}
+grid_sf <- st_make_grid(Navarra, cellsize = 1000, what = "centers") |>
+  st_as_sf() |>
+  st_filter(Navarra)
+
+nrow(grid_sf)
+```
+
+We can check the result by drawing the boundary of Navarre, the nodes of the prediction grid and the weather stations:
+
+```{r}
+#| fig-width: 6
+#| fig-height: 6
+
+tmap_mode("plot")
+
+tm_shape(Navarra) + tm_borders(lwd=1.5) +
+  tm_shape(grid_sf) + tm_dots(fill="grey", size=0.02) +
+  tm_shape(stations_sf) + tm_dots(fill="red", size=0.5) +
+  tm_add_legend(type = "symbols",
+                labels = c("Grid nodes (1 km)", "Weather stations"),
+                fill = c("grey", "red"),
+                size = c(0.2, 0.5)) +
+  tm_title("Prediction grid") +
+  tm_layout(legend.position = c("left", "bottom"))
+```
+
+- Each `tm_shape()` adds a new layer on top of the previous ones: first the boundary of Navarre, then the grid nodes and finally the stations.
+
+The prediction grid covers the whole territory, while the stations are irregularly distributed: there are more stations in the north and fewer in the south and in the Pyrenees (north-east).
+
+```{r}
+#| echo: false
+#| fig-cap: Maximum and minimum temperatures (ºC) recorded at the weather stations on 6 February 2010, classified by quintiles.
+#| fig-height: 5
+#| fig-width: 9
+
+draw_map <- function(var, title, palette) {
+  pal <- hcl.colors(5, palette, rev = TRUE)
+  br <- unique(quantile(stations_sf[[var]], probs = seq(0, 1, 0.2)))
+  cl <- cut(stations_sf[[var]], br, include.lowest = TRUE)
+  plot(st_geometry(Navarra), col = "grey95", border = "grey40", main = title)
+  plot(st_geometry(stations_sf), pch = 21, bg = pal[cl], col = "grey30",
+       cex = 1.1, add = TRUE)
+  legend("bottomleft", legend = levels(cl), pt.bg = pal, pch = 21,
+         col = "grey30", title = "ºC", bty = "n", cex = 0.8)
+}
+
+par(mfrow = c(1, 2), mar = c(0.5, 0.5, 2, 0.5))
+draw_map("TMAX", "Maximum temperature", "YlOrRd")
+draw_map("TMIN", "Minimum temperature", "Blues")
+```
+
+## Relationship between both variables {.unnumbered}
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+
+r <- cor(stations$TMAX, stations$TMIN)
+
+plot(stations$TMIN, stations$TMAX, pch = 19,
+     xlab = "TMIN (ºC)", ylab = "TMAX (ºC)",
+     main = paste("Correlation:", round(r, 2)))
+abline(lm(TMAX ~ TMIN, data = stations), col = "red", lwd = 2)
+```
+
+::: {.callout-note title="Interpretation"}
+The correlation between the maximum and minimum temperatures is **weak** (`r round(r, 2)`). Moreover, both variables have been measured at the **same stations**. According to Example 3.2 and its exercise, we should not expect a large improvement from co-kriging in this situation.
+:::
+
+Both temperatures have approximately symmetric distributions, so we will work on the original scale (ºC).
+
+
+# Semivariogram of the primary variable
+
+```{r}
+v_tmax <- variogram(TMAX ~ 1, stations_sf, width = 10000)
+v_tmax
+```
+
+The argument `width = 10000` groups the pairs of stations into distance lags of 10 km. With only 84 stations, the default lags (`cutoff/15`, about 4 km) contain few pairs and the empirical semivariogram is quite noisy.
+
+```{r}
+vgm_tmax <- fit.variogram(v_tmax, model=vgm(psill=6, model="Sph",
+                                            range=50000, nugget=1))
+vgm_tmax
+
+plot(v_tmax, vgm_tmax, pch = 19,
+     xlab = "Distance (m)", ylab = "Semivariance",
+     main = "Semivariogram of the maximum temperature")
+```
+
+::: {.callout-note title="Interpretation of the fitted model"}
+- Nugget effect $\approx$ `r round(vgm_tmax$psill[1], 2)` and partial sill $\approx$ `r round(vgm_tmax$psill[2], 2)`.
+- The empirical semivariogram **does not level off** within the maximum distance considered, so the fitted range (`r round(vgm_tmax$range[2] / 1000)` km) is larger than the largest distance between pairs used to fit it. This usually indicates a **large-scale trend**: the maximum temperature increases towards the south of Navarre (see the map above). We come back to this issue in @sec-beyond.
+:::
+
+
+# Ordinary kriging (TMAX only) and co-kriging (TMAX and TMIN)
+
+```{r}
+pred_krig <- krige(TMAX ~ 1, stations_sf, grid_sf, model=vgm_tmax)
+```
+## Linear model of coregionalization
+
+```{r}
+g <- gstat(NULL, id = "TMAX", formula = TMAX ~ 1, data = stations_sf)
+g <- gstat(g,    id = "TMIN", formula = TMIN ~ 1, data = stations_sf)
+
+v <- variogram(g, width = 10000)
+lmc <- fit.lmc(v, g, model=vgm_tmax)
+lmc$model
+```
+
+```{r}
+#| fig-width: 7
+#| fig-height: 6
+#| fig-cap: "Direct and cross empirical semivariograms of the maximum (TMAX) and minimum (TMIN) temperatures, with the fitted linear model of coregionalization."
+
+plot(v, lmc, pch = 19, col = "black",
+     xlab = "Distance (m)", ylab = "Semivariance",
+     scales = list(alternating = 1, tck = c(1, 0)))
+```
+
+::: {.callout-note title="Interpretation"}
+The cross-semivariogram shows some spatial structure, but its sill (`r round(sum(lmc$model$TMAX.TMIN$psill), 2)`) is much smaller than the sills of the direct semivariograms (`r round(sum(lmc$model$TMAX$psill), 2)` and `r round(sum(lmc$model$TMIN$psill), 2)`): the spatial correlation between both temperatures is weak.
+:::
+
+## Co-kriging predictions
+
+```{r}
+pred_cokrig <- predict(lmc, grid_sf, debug.level=0)
+```
+
+# Comparison of the predictions
+
+To draw the predictions as a continuous surface, each point of the grid is converted into a square cell of 1 km × 1 km:
+
+```{r}
+pred_sf <- grid_sf |>
+  mutate(krig_pred   = pred_krig$var1.pred,
+         krig_sd     = sqrt(pred_krig$var1.var),
+         cokrig_pred = pred_cokrig$TMAX.pred,
+         cokrig_sd   = sqrt(pred_cokrig$TMAX.var)) |>
+  st_buffer(dist=500, endCapStyle="SQUARE")
+```
+
+## Predictions {.unnumbered}
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+
+tm_shape(pred_sf) +
+  tm_polygons(fill = c("krig_pred", "cokrig_pred"),
+              fill.scale  = tm_scale_continuous(values = "brewer.yl_or_rd"),
+              fill.legend = tm_legend(title = "TMAX (ºC)"),
+              fill.free = FALSE,    # common colour scale
+              col = NULL) +         # no cell borders
+  tm_facets_wrap(nrow=1) +
+  tm_shape(Navarra) + tm_borders() +
+  tm_shape(stations_sf) + tm_dots(fill="black", size=0.2) +
+  tm_layout(panel.labels = c("Ordinary kriging", "Co-kriging"))
+```
+
+## Standard errors {.unnumbered}
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+
+tm_shape(pred_sf) +
+  tm_polygons(fill = c("krig_sd", "cokrig_sd"),
+              fill.scale  = tm_scale_continuous(values = "brewer.blues"),
+              fill.legend = tm_legend(title = "SD (ºC)"),
+              fill.free = FALSE,
+              col = NULL) +
+  tm_facets_wrap(nrow=1) +
+  tm_shape(Navarra) + tm_borders() +
+  tm_shape(stations_sf) + tm_dots(fill="black", size=0.2) +
+  tm_layout(panel.labels = c("Ordinary kriging", "Co-kriging"))
+```
+
+::: {.callout-note title="Interpretation"}
+- Both prediction maps are almost identical: higher maximum temperatures in the south (Ribera) and in the low valleys of the far north, and lower in the mountainous areas, especially the Pyrenees (north-east). This pattern closely follows the altitude.
+- The standard errors are also very similar: the median standard error is `r round(median(pred_sf$krig_sd), 3)` ºC with ordinary kriging and `r round(median(pred_sf$cokrig_sd), 3)` ºC with co-kriging. In both cases, they are smaller near the stations and larger in the areas with few stations.
+:::
+
+
+# Cross-validation
+
+::: {.callout-important title="A fair comparison"}
+To compare ordinary kriging and co-kriging, both methods must use the same semivariogram model. In addition, the cross-validation of co-kriging must remove the observations of both variables at each station (`remove.all = TRUE`, see Example 3.2).
+:::
+
+```{r}
+# Ordinary kriging
+cv_krig <- krige.cv(TMAX ~ 1, stations_sf, model=vgm_tmax, nfold=nrow(stations_sf),
+                    debug.level=0)
+
+# Co-kriging
+cv_cokrig <- gstat.cv(lmc, nfold=nrow(stations_sf), remove.all=TRUE, debug.level=0)
+
+cv_results <- data.frame(
+  Method = c("Ordinary kriging", "Co-kriging"),
+  MAE    = c(mean(abs(cv_krig$residual)), mean(abs(cv_cokrig$residual))),
+  RMSE   = c(sqrt(mean(cv_krig$residual^2)), sqrt(mean(cv_cokrig$residual^2)))
+)
+cv_results |> 
+  mutate(MAE = round(MAE, 3),
+         RMSE=round(RMSE, 3))
+```
+
+::: {.callout-note title="Interpretation"}
+Co-kriging **hardly improves** on ordinary kriging: the RMSE is `r sprintf("%.3f", cv_results$RMSE[1])` with ordinary kriging and `r sprintf("%.3f", cv_results$RMSE[2])` with co-kriging. As expected, the minimum temperature is not a useful secondary variable in this case:
+
+- its correlation with the maximum temperature is weak;
+- it has been measured at the same stations, so it does not provide information at new locations.
+:::
+
+
+# Beyond co-kriging: altitude as an auxiliary variable {#sec-beyond}
+
+The maximum temperature is much more strongly related to the **altitude** of the stations than to the minimum temperature:
+
+```{r}
+cor(stations$TMAX, stations$Z)
+```
+
+This suggests using altitude to predict the maximum temperature. However, in this case **universal kriging** (Chapter 2), with altitude as a covariate in the mean of the model,
+$$
+\text{TMAX}(\mathbf{s}) = \beta_0 + \beta_1\, Z(\mathbf{s}) + \varepsilon(\mathbf{s}),
+$$
+is more reasonable than co-kriging with altitude as a secondary variable:
+
+- **Altitude is known everywhere**, not only at the stations: it can be obtained from a digital elevation model at every node of the prediction grid. Universal kriging uses the altitude of each prediction location. In co-kriging, instead, a secondary variable only contributes through the locations where it has been observed, which here are the same stations where the maximum temperature is known. As with the minimum temperature, co-kriging with altitude would hardly improve on ordinary kriging.
+- **The relationship is physical and approximately linear**: temperature decreases with altitude. It is natural to model it in the mean, as a large-scale trend, rather than as a spatial correlation between two random variables.
+- It accounts for the **large-scale trend** that prevented the semivariogram of the maximum temperature from levelling off: the semivariogram is then fitted to the residuals $\varepsilon(\mathbf{s})$, which show much less variability.
+- It is **simpler**: no linear model of coregionalization is needed.
+
+In [Exercise 3.2](./Chapter3_Exercise2.html), you will compare the three methods.
+
+# Summary of the workflow
+
+| Step | Function | Result |
+|---|---|---|
+| Boundary and prediction grid | `esp_get_prov()` + `st_make_grid()` + `st_filter()` | Grid of points inside Navarre |
+| Ordinary kriging of the primary variable | `variogram()` + `fit.variogram()` + `krige()` | Predictions and kriging variances |
+| Linear model of coregionalization | `gstat()` + `variogram()` + `fit.lmc()` | Fitted `gstat` object |
+| Co-kriging predictions | `predict()` | Predictions and co-kriging variances |
+| Comparison of both methods | `krige.cv()` and `gstat.cv(..., remove.all = TRUE)`, with the same semivariogram model | MAE and RMSE |
