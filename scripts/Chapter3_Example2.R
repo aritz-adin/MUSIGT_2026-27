@@ -1,11 +1,25 @@
-## Packages --------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+## 1) Objectives:
+##    - Predict the concentration of lead (primary variable) in the Meuse
+##      study area using zinc (secondary variable), in the typical situation
+##      where the secondary variable has been observed at many more locations
+##      than the primary variable.
+##    - Compare ordinary kriging (lead only) and ordinary co-kriging (lead and
+##      zinc) using prediction maps, their standard errors and cross-validation.
+## -----------------------------------------------------------------------------
+
+## -----------------------------------------------------------------------------
+## 2) Packages
+## -----------------------------------------------------------------------------
 library(dplyr)
 library(gstat)
 library(sf)
 library(tmap)
 
 
-## Data ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+## 3) Description of the data
+## -----------------------------------------------------------------------------
 data(meuse, package="sp")         # soil samples
 data(meuse.grid, package="sp")    # prediction grid
 
@@ -26,16 +40,22 @@ lead_sf <- meuse_sf |> slice(idx)   # primary variable: 50 samples
 zinc_sf <- meuse_sf                 # secondary variable: 155 samples
 
 
-## Ordinary kriging (lead only) ------------------------------------------------
+## -----------------------------------------------------------------------------
+## 4) Ordinary kriging (lead only)
+## -----------------------------------------------------------------------------
 v_lead <- variogram(log(lead) ~ 1, lead_sf)
 vgm_lead <- fit.variogram(v_lead, model=vgm(psill=0.5, model="Sph",
                                             range=1000, nugget=0.05))
 vgm_lead
 
-pred_krig <- krige(log(lead) ~ 1, lead_sf, grid_sf, model=vgm_lead)
+pred_krig <- krige(log(lead) ~ 1, lead_sf, grid_sf, model=vgm_lead,
+                   debug.level=0)
 head(pred_krig)
 
 
+## -----------------------------------------------------------------------------
+## 5) Ordinary co-kriging (lead and zinc)
+## -----------------------------------------------------------------------------
 ## Direct and cross empirical semivariograms -----------------------------------
 g <- gstat(NULL, id = "Pb", formula = log(lead) ~ 1, data = lead_sf)
 g <- gstat(g,    id = "Zn", formula = log(zinc) ~ 1, data = zinc_sf)
@@ -58,10 +78,13 @@ plot(v, lmc, pch = 19, col = "black",
 
 
 ## Co-kriging predictions ------------------------------------------------------
-pred_cokrig <- predict(lmc, grid_sf)
+pred_cokrig <- predict(lmc, grid_sf, debug.level=0)
 head(pred_cokrig)
 
 
+## -----------------------------------------------------------------------------
+## 6) Comparison of the predictions
+## -----------------------------------------------------------------------------
 ## Interactive maps of predictions and standard errors -------------------------
 pred_sf <- grid_sf |>
   mutate(krig_pred   = pred_krig$var1.pred,
@@ -104,10 +127,12 @@ print(Map.pred)
 print(Map.sd)
 
 
-## Cross validation ------------------------------------------------------------
-
+## -----------------------------------------------------------------------------
+## 7) Cross-validation
+## -----------------------------------------------------------------------------
 # Ordinary kriging
-cv_krig <- krige.cv(log(lead) ~ 1, lead_sf, model=vgm_lead, nfold=nrow(lead_sf))
+cv_krig <- krige.cv(log(lead) ~ 1, lead_sf, model=vgm_lead, nfold=nrow(lead_sf),
+                    debug.level=0)
 
 # Co-kriging
 cv_cokrig <- gstat.cv(lmc, nfold=nrow(lead_sf), remove.all=TRUE, debug.level=0)

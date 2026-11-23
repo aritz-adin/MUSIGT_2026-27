@@ -19,6 +19,7 @@ execute:
 
 ```{r}
 #| include: false
+#| purl: false
 options(width = 120)
 ```
 
@@ -33,7 +34,7 @@ In this example we will:
 ::: {.callout-tip title="R script"}
 You can download the R script with all the code of this example and follow it step by step in RStudio:
 
-{{< downloadthis Chapter3_Example3.R dname="Chapter3_Example3" label="Download the R script" icon="file-earmark-code" type="outline-success" >}}
+{{< downloadthis scripts/Chapter3_Example3.R dname="Chapter3_Example3" label="Download the R script" icon="file-earmark-code" type="outline-success" >}}
 :::
 
 # Packages
@@ -116,6 +117,7 @@ The prediction grid covers the whole territory, while the stations are irregular
 
 ```{r}
 #| echo: false
+#| purl: false
 #| fig-cap: Maximum and minimum temperatures (ºC) recorded at the weather stations on 6 February 2010, classified by quintiles.
 #| fig-height: 5
 #| fig-width: 9
@@ -276,7 +278,7 @@ tm_shape(pred_sf) +
 # Cross-validation
 
 ::: {.callout-important title="A fair comparison"}
-To compare ordinary kriging and co-kriging, both methods must use the same semivariogram model. In addition, the cross-validation of co-kriging must remove the observations of both variables at each station (`remove.all = TRUE`, see Example 3.2).
+To compare ordinary kriging and co-kriging, both methods must use the same semivariogram model. In addition, the cross-validation of co-kriging must remove the observations of both variables at each station (`remove.all = TRUE`).
 :::
 
 ```{r}

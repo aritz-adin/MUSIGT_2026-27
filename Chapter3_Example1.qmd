@@ -28,7 +28,7 @@ In this example we will:
 ::: {.callout-tip title="R script"}
 You can download the R script with all the code of this example and follow it step by step in RStudio:
 
-{{< downloadthis Chapter3_Example1.R dname="Chapter3_Example1" label="Download the R script" icon="file-earmark-code" type="outline-success" >}}
+{{< downloadthis scripts/Chapter3_Example1.R dname="Chapter3_Example1" label="Download the R script" icon="file-earmark-code" type="outline-success" >}}
 :::
 
 # Packages
