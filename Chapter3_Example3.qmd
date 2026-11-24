@@ -54,7 +54,7 @@ The `mapSpain` package provides the administrative boundaries of Spain (autonomo
 The data contain the daily records of 84 manual weather stations in Navarre on 6 February 2010. The file can be read directly from the course website:
 
 ```{r}
-stations <- read.csv("https://raw.githubusercontent.com/aritz-adin/MUSIGT_2026-27/main/data/manual_20200206.csv",
+stations <- read.csv("https://raw.githubusercontent.com/aritz-adin/MUSIGT_2026-27/main/data/manual_20100206.csv",
                      colClasses = c(CODE = "character"))
 head(stations)
 ```

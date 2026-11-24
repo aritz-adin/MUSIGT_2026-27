@@ -29,14 +29,14 @@ Navarra)
 |----|----|
 | 📘 [Example 3.1](./Chapter3_Example1.html) | Meuse data: direct and cross-semivariograms, linear model of coregionalization |
 | 📘 [Example 3.2](./Chapter3_Example2.html) | Meuse data: co-kriging prediction |
-| 📘 [Example 3.3](./Chapter3_Example3.html) | PENDIENTE |
+| 📘 [Example 3.3](./Chapter3_Example3.html) | Navarre weather stations: co-kriging of maximum temperature |
 
 **Exercises** (to be solved by the students)
 
 |  | Description |
 |----|----|
 | ✏️ [Exercise 3.1](./Chapter3_Exercise1.html) | Meuse data: co-kriging of cadmium using copper |
-| ✏️ [Exercise 3.2](./Chapter3_Exercise2.html) | PENDIENTE |
+| ✏️ [Exercise 3.2](./Chapter3_Exercise2.html) | Navarre weather stations: co-kriging vs. universal kriging |
 
 ------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ Navarra)
 The practical sessions use the following R packages:
 
 ``` r
-install.packages(c("dplyr","gstat","sf","sp","tmap"))
+install.packages(c("dplyr", "gstat", "mapSpain", "sf", "sp", "tmap"))
 ```
 
 ------------------------------------------------------------------------
@@ -54,6 +54,14 @@ install.packages(c("dplyr","gstat","sf","sp","tmap"))
 
 - Bivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). *Applied Spatial
   Data Analysis with R* (2nd ed.). Springer. <https://asdar-book.org/>
+
+- Pebesma, E. J. (2004). “Multivariable geostatistics in S: the `gstat`
+  package.” *Computers & Geosciences*, 30(7), 683-691.
+  <https://doi.org/10.1016/j.cageo.2004.03.012>
+
+- Pebesma, E. (2018). “Simple Features for R: Standardized Support for
+  Spatial Vector Data.” *The R Journal*, 10(1), 439-446.
+  <https://doi.org/10.32614/RJ-2018-009>
 
 - Pebesma, E., & Bivand, R. (2023). *Spatial Data Science: With
   Applications in R*. Chapman & Hall/CRC. <https://r-spatial.org/book>

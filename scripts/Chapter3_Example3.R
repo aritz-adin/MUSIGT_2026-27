@@ -20,7 +20,7 @@ library(tmap)
 ## -----------------------------------------------------------------------------
 ## 3) Description of the data 
 ## -----------------------------------------------------------------------------
-stations <- read.csv("https://raw.githubusercontent.com/aritz-adin/MUSIGT_2026-27/main/data/manual_20200206.csv",
+stations <- read.csv("https://raw.githubusercontent.com/aritz-adin/MUSIGT_2026-27/main/data/manual_20100206.csv",
                      colClasses = c(CODE = "character"))
 head(stations)
 

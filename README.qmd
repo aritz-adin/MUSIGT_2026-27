@@ -36,7 +36,7 @@ Máster en Sistemas de Información Geográfica y Teledetección · Academic yea
 |   | Description |
 |---|-------|
 | ✏️ [Exercise 3.1](./Chapter3_Exercise1.html) | Meuse data: co-kriging of cadmium using copper |
-| ✏️ [Exercise 3.2](./Chapter3_Exercise2.html) | PENDIENTE |
+| ✏️ [Exercise 3.2](./Chapter3_Exercise2.html) | Navarre weather stations: co-kriging vs. universal kriging |
 
 ---
 
@@ -45,7 +45,7 @@ Máster en Sistemas de Información Geográfica y Teledetección · Academic yea
 The practical sessions use the following R packages:
 
 ```r
-install.packages(c("dplyr","gstat","sf","sp","tmap"))
+install.packages(c("dplyr", "gstat", "mapSpain", "sf", "sp", "tmap"))
 ```
 
 ---
@@ -53,6 +53,10 @@ install.packages(c("dplyr","gstat","sf","sp","tmap"))
 ### References
 
 - Bivand, R. S., Pebesma, E., & Gómez-Rubio, V. (2013). *Applied Spatial Data Analysis with R* (2nd ed.). Springer. [https://asdar-book.org/](https://asdar-book.org/)
+
+- Pebesma, E. J. (2004). "Multivariable geostatistics in S: the `gstat` package." *Computers & Geosciences*, 30(7), 683-691. <https://doi.org/10.1016/j.cageo.2004.03.012>
+
+- Pebesma, E. (2018). "Simple Features for R: Standardized Support for Spatial Vector Data." *The R Journal*, 10(1), 439-446. <https://doi.org/10.32614/RJ-2018-009>
 
 - Pebesma, E., & Bivand, R. (2023). *Spatial Data Science: With Applications in R*. Chapman & Hall/CRC. [https://r-spatial.org/book](https://r-spatial.org/book)
 
