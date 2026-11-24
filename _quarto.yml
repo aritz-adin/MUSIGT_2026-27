@@ -25,7 +25,7 @@ website:
           - href: Chapter3_Exercise1.qmd
             text: "Exercise 3.1: Co-kriging of cadmium using copper"
           - href: Chapter3_Exercise2.qmd
-            text: "Exercise 3.2: "
+            text: "Exercise 3.2: Co-kriging vs. universal kriging"
   page-footer:
     center: "Aritz Adin & Tomás Goicoa · Universidad Pública de Navarra"
 
